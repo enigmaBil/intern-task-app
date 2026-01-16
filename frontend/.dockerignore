@@ -1,0 +1,29 @@
+# Dépendances (installées dans le conteneur)
+node_modules
+
+# Fichiers de build (générés dans le conteneur)
+.next
+out
+build
+
+# Fichiers système & IDE
+.DS_Store
+.git
+.gitignore
+.env.local
+.env.development
+.env
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Fichiers de tests
+coverage/
+*.test.tsx
+*.test.ts
+__tests__/
+
+# Fichiers temporaires
+.vercel
+.nitro

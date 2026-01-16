@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// User Model
+// ============================================
+model User {
+  id        String  @id @default(uuid())
+  email     String  @unique
+  firstName String  @map("first_name")
+  lastName  String  @map("last_name")
+  role      String  @default("ADMIN")
+  isActive  Boolean @default(true) @map("is_active")
+
+  // Relations
+  assignedTasks Task[]      @relation("AssignedTo")
+  createdTasks  Task[]      @relation("CreatedBy")
+  scrumNotes    ScrumNote[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+// ============================================
+// Task Model
+// ============================================
+model Task {
+  id             String    @id @default(uuid())
+  title          String
+  description    String?   @db.Text
+  status         String    @default("TODO")
+  estimatedHours Int?      @map("estimated_hours")
+  actualHours    Int?      @map("actual_hours")
+  deadline       DateTime?
+
+  // Relations
+  assigneeId  String? @map("assignee_id")
+  assignee    User?   @relation("AssignedTo", fields: [assigneeId], references: [id], onDelete: SetNull)
+  createdById String  @map("created_by_id")
+  createdBy   User    @relation("CreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+
+  scrumNotes ScrumNote[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([assigneeId])
+  @@index([createdById])
+  @@index([deadline])
+  @@map("tasks")
+}
+
+// ============================================
+// Scrum Note Model (Daily Standup Notes)
+// ============================================
+model ScrumNote {
+  id          String   @id @default(uuid())
+  date        DateTime @default(now())
+  whatIDid    String?  @map("what_i_did") @db.Text
+  whatIWillDo String?  @map("what_i_will_do") @db.Text
+  blockers    String?  @db.Text
+
+  // Relations
+  userId String  @map("user_id")
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId String? @map("task_id")
+  task   Task?   @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+  @@index([taskId])
+  @@map("scrum_notes")
+}

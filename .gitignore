@@ -1,0 +1,113 @@
+# ==========================================
+# Environment Variables
+# ==========================================
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ==========================================
+# Dependencies
+# ==========================================
+**/node_modules/
+**/.pnp
+**/.pnp.*
+**/.yarn/*
+!**/.yarn/patches
+!**/.yarn/plugins
+!**/.yarn/releases
+!**/.yarn/versions
+
+# ==========================================
+# Build & Compiled Output
+# ==========================================
+**/dist/
+**/build/
+**/out/
+**/.next/
+**/coverage/
+**/.nyc_output/
+
+# ==========================================
+# Logs
+# ==========================================
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# ==========================================
+# OS Files
+# ==========================================
+.DS_Store
+*.pem
+Thumbs.db
+
+# ==========================================
+# IDEs and Editors
+# ==========================================
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ==========================================
+# Temporary Files
+# ==========================================
+.temp
+.tmp
+*.tmp
+*.swp
+*.swo
+*~
+
+# ==========================================
+# Runtime Data
+# ==========================================
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# ==========================================
+# Diagnostic Reports
+# ==========================================
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# ==========================================
+# TypeScript
+# ==========================================
+*.tsbuildinfo
+**/next-env.d.ts
+
+# ==========================================
+# Prisma
+# ==========================================
+**/prisma/generated/
+*.db
+*.db-journal
+
+# ==========================================
+# Deployment
+# ==========================================
+.vercel
+
+# ==========================================
+# Docker
+# ==========================================
+*.log
+docker-compose.override.yml
