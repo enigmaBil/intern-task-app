@@ -1,4 +1,5 @@
 import { ScrumNote } from "@/core/domain/entities/scrum-note.entity";
+import { UserRole } from "@/core/domain/enums/user-role.enum";
 import { ScrumNoteNotFoundException } from "@/core/domain/exceptions/scrum-note-not-found.exception";
 import { UnauthorizedException } from "@/core/domain/exceptions/unauthorized.exception";
 import { UserNotFoundException } from "@/core/domain/exceptions/user-not-found.exception";
@@ -13,6 +14,7 @@ export interface UpdateScrumNoteInput {
   blockers?: string;
   nextSteps?: string;
   userId: string; // L'utilisateur qui fait la demande
+  userRole: UserRole; // Rôle de l'utilisateur
 }
 
 /**
@@ -36,7 +38,7 @@ export class UpdateScrumNoteUseCase {
       throw new ScrumNoteNotFoundException(input.noteId);
     }
 
-    // Vérifier que l'utilisateur existe et récupérer son rôle
+    // Vérifier que l'utilisateur existe
     const user = await this.userInteractor.findById(input.userId);
     
     if (!user) {
@@ -44,7 +46,7 @@ export class UpdateScrumNoteUseCase {
     }
 
     //Vérifier les permissions (la validation métier est dans l'entité)
-    if (!note.canBeModifiedBy(input.userId, user.role)) {
+    if (!note.canBeModifiedBy(input.userId, input.userRole)) {
       throw new UnauthorizedException(input.userId, 'update scrum note');
     }
 

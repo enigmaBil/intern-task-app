@@ -1,14 +1,54 @@
 import { Global, Module } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
+import { PrismaScrumNoteRepository, PrismaTaskRepository, PrismaUserRepository } from './repositories';
 
 /**
- * DatabaseModule provides database access throughout the application
- * Marked as @Global to make PrismaService available everywhere without importing
- * This follows the infrastructure layer pattern in Clean Architecture
+ * Module Database - Fournit l'accès à la base de données
+ * 
+ * Ce module est marqué @Global pour que PrismaService
+ * soit disponible partout sans import explicite
+ * 
+ * Les repositories sont fournis avec des tokens d'injection
+ * qui correspondent aux interfaces du Core Layer
  */
 @Global()
 @Module({
-  providers: [PrismaService],
-  exports: [PrismaService],
+  providers: [
+    PrismaService,
+    {
+      provide: 'IUserInteractor',
+      useClass: PrismaUserRepository,
+    },
+    {
+      provide: 'IUserRepository',
+      useClass: PrismaUserRepository,
+    },
+    {
+      provide: 'ITaskInteractor',
+      useClass: PrismaTaskRepository,
+    },
+    {
+      provide: 'ITaskRepository',
+      useClass: PrismaTaskRepository,
+    },
+    
+    {
+      provide: 'IScrumNoteInteractor',
+      useClass: PrismaScrumNoteRepository,
+    },
+    {
+      provide: 'IScrumNoteRepository',
+      useClass: PrismaScrumNoteRepository,
+    },
+  ],
+  exports: [
+    PrismaService,
+    'IUserInteractor',
+    'IUserRepository',
+    'ITaskInteractor',
+    'ITaskRepository',
+    'IScrumNoteInteractor',
+    'IScrumNoteRepository',
+  ],
 })
-export class DatabaseModule {}
+export class DatabaseModule { }

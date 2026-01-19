@@ -54,7 +54,8 @@ describe('CreateTaskUseCase', () => {
         const admin = User.reconstitute({
         id: 'admin-123',
         email: 'admin@test.com',
-        name: 'Admin User',
+        firstName: 'Admin',
+        lastName: 'User',
         role: UserRole.ADMIN,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -106,7 +107,8 @@ describe('CreateTaskUseCase', () => {
         const intern = User.reconstitute({
         id: 'intern-123',
         email: 'intern@test.com',
-        name: 'Intern User',
+        firstName: 'Intern',
+        lastName: 'User',
         role: UserRole.INTERN,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -132,7 +134,8 @@ describe('CreateTaskUseCase', () => {
         const admin = User.reconstitute({
         id: 'admin-123',
         email: 'admin@test.com',
-        name: 'Admin User',
+        firstName: 'Admin',
+        lastName: 'User',
         role: UserRole.ADMIN,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -156,7 +159,8 @@ describe('CreateTaskUseCase', () => {
         const admin = User.reconstitute({
         id: 'admin-123',
         email: 'admin@test.com',
-        name: 'Admin User',
+        firstName: 'Admin',
+        lastName: 'User',
         role: UserRole.ADMIN,
         createdAt: new Date(),
         updatedAt: new Date(),

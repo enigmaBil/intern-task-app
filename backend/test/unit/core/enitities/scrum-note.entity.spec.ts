@@ -42,7 +42,7 @@ describe('ScrumNote Entity', () => {
       const note = ScrumNote.create(data);
 
       // Assert
-      expect(note.blockers).toBeNull();
+      expect(note.blockers).toBe('');
     });
 
     it('should normalize date to start of day', () => {
@@ -204,7 +204,7 @@ describe('ScrumNote Entity', () => {
       note.update({ blockers: '' });
 
       // Assert
-      expect(note.blockers).toBeNull();
+      expect(note.blockers).toBe('');
     });
 
     it('should throw error when updating whatIDid with empty string', () => {

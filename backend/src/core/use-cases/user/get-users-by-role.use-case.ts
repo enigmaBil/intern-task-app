@@ -3,13 +3,6 @@ import { UserRole } from "@/core/domain/enums/user-role.enum";
 import { IUserInteractor } from "@/core/interactors/user.interactor";
 
 /**
- * Input pour récupérer les utilisateurs par rôle
- */
-export interface GetUsersByRoleInput {
-  role: UserRole;
-}
-
-/**
  * Use Case : Récupérer tous les utilisateurs d'un certain rôle
  * 
  * Utile pour :
@@ -19,7 +12,7 @@ export interface GetUsersByRoleInput {
 export class GetUsersByRoleUseCase {
   constructor(private readonly userInteractor: IUserInteractor) {}
 
-  async execute(input: GetUsersByRoleInput): Promise<User[]> {
-    return this.userInteractor.findByRole(input.role);
+  async execute(role: UserRole): Promise<User[]> {
+    return this.userInteractor.findByRole(role);
   }
 }

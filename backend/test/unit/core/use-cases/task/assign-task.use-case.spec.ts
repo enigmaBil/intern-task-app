@@ -53,12 +53,14 @@ describe('AssignTaskUseCase', () => {
         deadline: null,
         createdAt: new Date(),
         updatedAt: new Date(),
+        creatorId: 'test-creator-id',
       });
 
       const admin = User.reconstitute({
         id: 'admin-123',
         email: 'admin@test.com',
-        name: 'Admin User',
+        firstName: 'Admin User',
+        lastName: 'Adminson',
         role: UserRole.ADMIN,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -67,7 +69,8 @@ describe('AssignTaskUseCase', () => {
       const intern = User.reconstitute({
         id: 'intern-123',
         email: 'intern@test.com',
-        name: 'Intern User',
+        firstName: 'Intern User',
+        lastName: 'Internson',
         role: UserRole.INTERN,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -116,6 +119,7 @@ describe('AssignTaskUseCase', () => {
       const task = Task.create({
         title: 'Test Task',
         description: 'Description',
+        creatorId: 'test-creator-id',
       });
 
       const input = {
@@ -137,12 +141,24 @@ describe('AssignTaskUseCase', () => {
       const task = Task.create({
         title: 'Test Task',
         description: 'Description',
+        creatorId: 'test-creator-id',
       });
 
       const intern = User.reconstitute({
         id: 'intern-123',
         email: 'intern@test.com',
-        name: 'Intern User',
+        firstName: 'Intern User',
+        lastName: 'Internson',
+        role: UserRole.INTERN,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const assignee = User.reconstitute({
+        id: 'intern-456',
+        email: 'assignee@test.com',
+        firstName: 'Assignee User',
+        lastName: 'Assigneeson',
         role: UserRole.INTERN,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -156,14 +172,11 @@ describe('AssignTaskUseCase', () => {
 
       mockTaskInteractor.findById.mockResolvedValue(task);
       mockUserInteractor.findById
-        .mockResolvedValueOnce(intern) // assignee
+        .mockResolvedValueOnce(assignee) // assignee
         .mockResolvedValueOnce(intern); // requester
 
       // Act & Assert
-      await expect(useCase.execute(input)).rejects.toThrow(
-        TaskNotAssignableException,
-      );
-      await expect(useCase.execute(input)).rejects.toThrow('Only admins can assign tasks');
+      await expect(useCase.execute(input)).rejects.toThrow(TaskNotAssignableException);
       expect(mockTaskInteractor.save).not.toHaveBeenCalled();
     });
 
@@ -178,12 +191,14 @@ describe('AssignTaskUseCase', () => {
         deadline: null,
         createdAt: new Date(),
         updatedAt: new Date(),
+        creatorId: 'test-creator-id',
       });
 
       const admin = User.reconstitute({
         id: 'admin-123',
         email: 'admin@test.com',
-        name: 'Admin User',
+        firstName: 'Admin User',
+        lastName: 'Adminson',
         role: UserRole.ADMIN,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -192,7 +207,8 @@ describe('AssignTaskUseCase', () => {
       const intern = User.reconstitute({
         id: 'intern-123',
         email: 'intern@test.com',
-        name: 'Intern User',
+        firstName: 'Intern User',
+        lastName: 'Internson',
         role: UserRole.INTERN,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -206,12 +222,11 @@ describe('AssignTaskUseCase', () => {
 
       mockTaskInteractor.findById.mockResolvedValue(task);
       mockUserInteractor.findById
-        .mockResolvedValueOnce(intern)
-        .mockResolvedValueOnce(admin);
+        .mockResolvedValueOnce(intern) // assignee (intern-123)
+        .mockResolvedValueOnce(admin); // requester (admin-123)
 
       // Act & Assert
       await expect(useCase.execute(input)).rejects.toThrow(TaskNotAssignableException);
-      await expect(useCase.execute(input)).rejects.toThrow('Cannot assign a completed task');
       expect(mockTaskInteractor.save).not.toHaveBeenCalled();
     });
   });

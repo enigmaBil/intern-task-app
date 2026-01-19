@@ -30,7 +30,8 @@ describe('GetAllUsersUseCase', () => {
       const admin = User.reconstitute({
         id: 'admin-1',
         email: 'admin@test.com',
-        name: 'Admin User',
+        firstName: 'Admin',
+        lastName: 'User',
         role: UserRole.ADMIN,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -39,7 +40,8 @@ describe('GetAllUsersUseCase', () => {
       const intern = User.reconstitute({
         id: 'intern-1',
         email: 'intern@test.com',
-        name: 'Intern User',
+        firstName: 'Intern User',
+        lastName: 'Internson',
         role: UserRole.INTERN,
         createdAt: new Date(),
         updatedAt: new Date(),

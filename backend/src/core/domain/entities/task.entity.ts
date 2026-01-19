@@ -9,6 +9,7 @@ import { TaskNotAssignableException } from '../exceptions/task-not-assignable.ex
 export interface CreateTaskData {
   title: string;
   description: string;
+  creatorId: string;
   deadline?: Date;
 }
 
@@ -24,6 +25,7 @@ export class Task {
     public title: string,
     public description: string,
     public status: TaskStatus,
+    public readonly creatorId: string,
     public assigneeId: string | null,
     public deadline: Date | null,
     public readonly createdAt: Date,
@@ -63,6 +65,7 @@ export class Task {
       data.title.trim(),
       data.description.trim(),
       TaskStatus.TODO,
+      data.creatorId,
       null,
       data.deadline || null,
       now,
@@ -81,6 +84,7 @@ export class Task {
     title: string;
     description: string;
     status: TaskStatus;
+    creatorId: string;
     assigneeId: string | null;
     deadline: Date | null;
     createdAt: Date;
@@ -91,6 +95,7 @@ export class Task {
       data.title,
       data.description,
       data.status,
+      data.creatorId,
       data.assigneeId,
       data.deadline,
       data.createdAt,

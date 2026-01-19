@@ -1,15 +1,8 @@
+import { UserRole } from "@/core/domain/enums/user-role.enum";
 import { ScrumNoteNotFoundException } from "@/core/domain/exceptions/scrum-note-not-found.exception";
 import { UnauthorizedException } from "@/core/domain/exceptions/unauthorized.exception";
 import { UserNotFoundException } from "@/core/domain/exceptions/user-not-found.exception";
 import { IScrumNoteInteractor, IUserInteractor } from "@/core/interactors";
-
-/**
- * Input pour supprimer une scrum note
- */
-export interface DeleteScrumNoteInput {
-  scrumNoteId: string;
-  requesterId: string;
-}
 
 /**
  * Use Case : Supprimer une scrum note
@@ -24,27 +17,26 @@ export class DeleteScrumNoteUseCase {
     private readonly userInteractor: IUserInteractor,
   ) {}
 
-    async execute(input: DeleteScrumNoteInput): Promise<void> {
-        //Vérifier que la note existe
-        const note = await this.scrumNoteInteractor.findById(input.scrumNoteId);
+  async execute(scrumNoteId: string, requesterId: string, requesterRole: UserRole): Promise<void> {
+    //Vérifier que la note existe
+    const note = await this.scrumNoteInteractor.findById(scrumNoteId);
 
-        if(!note){
-            throw new ScrumNoteNotFoundException(input.scrumNoteId);
-        }
-
-        //vérifier que le requester existe et récupérer son rôle
-        const requester = await this.userInteractor.findById(input.requesterId);
-        if (!requester) {
-            throw new UserNotFoundException(input.requesterId);
-        }
-
-        //Vérifier les permissions 
-        if (!note.canBeDeleted(input.requesterId, requester.role)) {
-            throw new UnauthorizedException(input.requesterId, 'delete scrum note');
-        }
-
-        //Supprimer
-        await this.scrumNoteInteractor.delete(input.scrumNoteId);
+    if(!note){
+      throw new ScrumNoteNotFoundException(scrumNoteId);
     }
 
+    //vérifier que le requester existe
+    const requester = await this.userInteractor.findById(requesterId);
+    if (!requester) {
+      throw new UserNotFoundException(requesterId);
+    }
+
+    //Vérifier les permissions 
+    if (!note.canBeDeleted(requesterId, requesterRole)) {
+      throw new UnauthorizedException(requesterId, 'delete scrum note');
+    }
+
+    //Supprimer
+    await this.scrumNoteInteractor.delete(scrumNoteId);
+  }
 }

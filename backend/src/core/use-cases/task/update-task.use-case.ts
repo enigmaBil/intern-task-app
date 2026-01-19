@@ -1,4 +1,6 @@
 import { Task } from "@/core/domain/entities/task.entity";
+import { TaskStatus } from "@/core/domain/enums/task-status.enum";
+import { UserRole } from "@/core/domain/enums/user-role.enum";
 import { TaskNotFoundException } from "@/core/domain/exceptions/task-not-found.exception";
 import { UserNotFoundException } from "@/core/domain/exceptions/user-not-found.exception";
 import { ITaskInteractor, IUserInteractor } from "@/core/interactors";
@@ -10,8 +12,10 @@ export interface UpdateTaskInput {
   taskId: string;
   title?: string;
   description?: string;
+  status?: TaskStatus;
   deadline?: Date;
-  requesterId: string;
+  userId: string; // L'utilisateur qui fait la demande
+  userRole: UserRole; // Rôle de l'utilisateur
 }
 
 /**
@@ -34,22 +38,28 @@ export class UpdateTaskUseCase {
       throw new TaskNotFoundException(input.taskId);
     }
 
-    //Vérifier que le requester existe et récupérer son rôle
-    const requester = await this.userInteractor.findById(input.requesterId);
+    //Vérifier que le requester existe
+    const requester = await this.userInteractor.findById(input.userId);
     
     if (!requester) {
-      throw new UserNotFoundException(input.requesterId);
+      throw new UserNotFoundException(input.userId);
     }
 
     //Mettre à jour (la validation métier est dans l'entité)
-    task.update(
-      {
-        title: input.title,
-        description: input.description,
-        deadline: input.deadline,
-      },
-      requester.role,
-    );
+    if (input.status) {
+      task.updateStatus(input.status, input.userId, input.userRole);
+    }
+    
+    if (input.title || input.description || input.deadline !== undefined) {
+      task.update(
+        {
+          title: input.title,
+          description: input.description,
+          deadline: input.deadline,
+        },
+        input.userRole,
+      );
+    }
 
     // Sauvegarder
     return this.taskInteractor.save(task);

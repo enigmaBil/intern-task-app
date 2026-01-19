@@ -54,4 +54,12 @@ export interface IUserInteractor {
    * @returns true si l'email existe déjà, false sinon
    */
   emailExists(email: string): Promise<boolean>;
+
+  /**
+   * Sauvegarde un utilisateur (création ou mise à jour)
+   * 
+   * @param user - Entité utilisateur à sauvegarder
+   * @returns L'utilisateur sauvegardé
+   */
+  save(user: User): Promise<User>;
 }

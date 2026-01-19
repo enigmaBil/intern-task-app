@@ -31,7 +31,8 @@ describe('GetUserByIdUseCase', () => {
       const user = User.reconstitute({
         id: 'user-123',
         email: 'user@test.com',
-        name: 'Test User',
+        firstName: 'Test',
+        lastName: 'Userton',
         role: UserRole.INTERN,
         createdAt: new Date(),
         updatedAt: new Date(),

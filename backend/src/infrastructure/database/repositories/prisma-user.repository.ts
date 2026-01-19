@@ -1,143 +1,135 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { User as PrismaUser } from '@/infrastructure/generated/prisma';
+import { IUserInteractor } from '@/core/interactors';
+import { User } from '@/core/domain/entities/user.entity';
+import { UserPersistenceMapper } from '../mappers';
+import { UserRole } from '@/core/domain/enums/user-role.enum';
 
 
+/**
+ * Implémentation Prisma du repository User
+ */
 @Injectable()
-export class PrismaUserRepository {
+export class PrismaUserRepository implements IUserInteractor {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * Find a user by their ID
+   * Récupère un utilisateur par son ID
    */
-  async findById(id: string): Promise<PrismaUser | null> {
-    return this.prisma.user.findUnique({
+  async findById(id: string): Promise<User | null> {
+    const prismaUser = await this.prisma.user.findUnique({
       where: { id },
-      include: {
-        assignedTasks: true,
-        createdTasks: true,
-        scrumNotes: true,
-      },
     });
+
+    if (!prismaUser) {
+      return null;
+    }
+
+    return UserPersistenceMapper.toDomain(prismaUser);
   }
 
- 
-
   /**
-   * Find a user by their email
+   * Récupère un utilisateur par son email
    */
-  async findByEmail(email: string): Promise<PrismaUser | null> {
-    return this.prisma.user.findUnique({
+  async findByEmail(email: string): Promise<User | null> {
+    const prismaUser = await this.prisma.user.findUnique({
       where: { email },
     });
+
+    if (!prismaUser) {
+      return null;
+    }
+
+    return UserPersistenceMapper.toDomain(prismaUser);
   }
 
   /**
-   * Find all users with optional filters
+   * Récupère tous les utilisateurs
    */
-  async findAll(params?: {
-    role?: string;
-    isActive?: boolean;
-    skip?: number;
-    take?: number;
-  }): Promise<PrismaUser[]> {
-    const { role, isActive, skip, take } = params || {};
+  async findAll(): Promise<User[]> {
+    const prismaUsers = await this.prisma.user.findMany({
+      orderBy: {
+        lastName: 'asc',
+      },
+    });
 
-    return this.prisma.user.findMany({
+    return UserPersistenceMapper.toDomainList(prismaUsers);
+  }
+
+  /**
+   * Récupère les utilisateurs par rôle
+   */
+  async findByRole(role: UserRole): Promise<User[]> {
+    const prismaUsers = await this.prisma.user.findMany({
       where: {
-        ...(role && { role: role as any }),
-        ...(isActive !== undefined && { isActive }),
+        role: role,
       },
-      skip,
-      take,
-      orderBy: { createdAt: 'desc' },
-    });
-  }
-
-  /**
-   * Create a new user
-   */
-  async create(data: {
-    email: string;
-    firstName: string;
-    lastName: string;
-    role?: string;
-  }): Promise<PrismaUser> {
-    return this.prisma.user.create({
-      data: {
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        role: (data.role as any) || 'ADMIN',
+      orderBy: {
+        lastName: 'asc',
       },
     });
+
+    return UserPersistenceMapper.toDomainList(prismaUsers);
   }
 
   /**
-   * Update a user
+   * Vérifie si un utilisateur existe
    */
-  async update(
-    id: string,
-    data: {
-      email?: string;
-      firstName?: string;
-      lastName?: string;
-      role?: string;
-      isActive?: boolean;
-    },
-  ): Promise<PrismaUser> {
-    return this.prisma.user.update({
-      where: { id },
-      data: {
-        ...(data.email && { email: data.email }),
-        ...(data.firstName && { firstName: data.firstName }),
-        ...(data.lastName && { lastName: data.lastName }),
-        ...(data.role && { role: data.role as any }),
-        ...(data.isActive !== undefined && { isActive: data.isActive }),
-      },
-    });
-  }
-
-  /**
-   * Delete a user (soft delete by setting isActive to false)
-   */
-  async softDelete(id: string): Promise<PrismaUser> {
-    return this.prisma.user.update({
-      where: { id },
-      data: { isActive: false },
-    });
-  }
-
-  /**
-   * Hard delete a user (permanent deletion)
-   */
-  async delete(id: string): Promise<PrismaUser> {
-    return this.prisma.user.delete({
+  async exists(id: string): Promise<boolean> {
+    const count = await this.prisma.user.count({
       where: { id },
     });
+
+    return count > 0;
   }
 
   /**
-   * Count users with optional filters
+   * Vérifie si un email est déjà utilisé
    */
-  async count(params?: { role?: string; isActive?: boolean }): Promise<number> {
-    const { role, isActive } = params || {};
-
-    return this.prisma.user.count({
-      where: {
-        ...(role && { role: role as any }),
-        ...(isActive !== undefined && { isActive }),
-      },
-    });
-  }
-
-  /**
-   * Check if a user exists by email
-   */
-  async existsByEmail(email: string): Promise<boolean> {
+  async emailExists(email: string): Promise<boolean> {
     const count = await this.prisma.user.count({
       where: { email },
     });
+
     return count > 0;
+  }
+
+  /**
+   * Sauvegarde un utilisateur (création ou mise à jour)
+   */
+  async save(user: User): Promise<User> {
+    // Vérifier si l'utilisateur existe déjà
+    const exists = await this.exists(user.id);
+
+    if (exists) {
+      // Mise à jour
+      const updated = await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          updatedAt: user.updatedAt,
+        },
+      });
+
+      return UserPersistenceMapper.toDomain(updated);
+    } else {
+      // Création
+      const created = await this.prisma.user.create({
+        data: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        },
+      });
+
+      return UserPersistenceMapper.toDomain(created);
+    }
   }
 }

@@ -11,7 +11,7 @@ export interface CreateTaskInput {
   title: string;
   description: string;
   deadline?: Date;
-  requesterId: string; // ID de l'utilisateur qui crée la tâche
+  creatorId: string; // ID de l'utilisateur qui crée la tâche
 }
 
 /**
@@ -30,20 +30,21 @@ export class CreateTaskUseCase {
 
   async execute(input: CreateTaskInput): Promise<Task> {
     // Vérifier que l'utilisateur existe et est admin
-    const requester = await this.userInteractor.findById(input.requesterId);
+    const requester = await this.userInteractor.findById(input.creatorId);
     
     if (!requester) {
-      throw new UserNotFoundException(input.requesterId);
+      throw new UserNotFoundException(input.creatorId);
     }
 
     if (requester.role !== UserRole.ADMIN) {
-      throw new UnauthorizedException(input.requesterId, 'create task');
+      throw new UnauthorizedException(input.creatorId, 'create task');
     }
 
     // Créer la tâche (la validation métier est realisée dans l'entité)
     const task = Task.create({
       title: input.title,
       description: input.description,
+      creatorId: input.creatorId,
       deadline: input.deadline,
     });
 

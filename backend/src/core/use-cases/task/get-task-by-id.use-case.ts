@@ -3,23 +3,16 @@ import { TaskNotFoundException } from "@/core/domain/exceptions/task-not-found.e
 import { ITaskInteractor } from "@/core/interactors";
 
 /**
- * Input pour récupérer une tâche
- */
-export interface GetTaskByIdInput {
-  taskId: string;
-}
-
-/**
  * Use Case : Récupérer une tâche par son ID
  */
 export class GetTaskByIdUseCase {
   constructor(private readonly taskInteractor: ITaskInteractor) {}
 
-  async execute(input: GetTaskByIdInput): Promise<Task> {
-    const task = await this.taskInteractor.findById(input.taskId);
+  async execute(taskId: string): Promise<Task> {
+    const task = await this.taskInteractor.findById(taskId);
     
     if (!task) {
-      throw new TaskNotFoundException(input.taskId);
+      throw new TaskNotFoundException(taskId);
     }
 
     return task;

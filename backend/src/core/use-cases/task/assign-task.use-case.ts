@@ -1,4 +1,5 @@
 import { Task } from "@/core/domain/entities/task.entity";
+import { UserRole } from "@/core/domain/enums/user-role.enum";
 import { TaskNotFoundException } from "@/core/domain/exceptions/task-not-found.exception";
 import { UserNotFoundException } from "@/core/domain/exceptions/user-not-found.exception";
 import { ITaskInteractor, IUserInteractor } from "@/core/interactors";
@@ -10,6 +11,7 @@ export interface AssignTaskInput {
   taskId: string;
   assigneeId: string;
   requesterId: string;
+  requesterRole: UserRole;
 }
 
 /**

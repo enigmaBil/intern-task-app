@@ -1,14 +1,16 @@
-
+import { Task } from '@/core/domain/entities/task.entity';
+import { ITaskInteractor } from '@/core/interactors';
 
 /**
- * Use Case: recupérer toutes les tâches
+ * Use Case: Récupérer toutes les tâches
  * 
  * Règle métier:
- * - Seul un ADMIN peut récupérer toutes les tâches du système
- *
+ * - Tout utilisateur authentifié peut voir toutes les tâches
  */
-
-
 export class GetAllTasksUseCase {
-    
+  constructor(private readonly taskInteractor: ITaskInteractor) {}
+
+  async execute(): Promise<Task[]> {
+    return this.taskInteractor.findAll();
+  }
 }

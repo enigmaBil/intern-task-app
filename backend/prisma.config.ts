@@ -1,0 +1,1 @@
+src/infrastructure/config/prisma.config.ts

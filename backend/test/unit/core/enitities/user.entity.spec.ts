@@ -15,7 +15,8 @@ describe('User Entity', () => {
       const data = {
         id: 'user-123',
         email: 'test@example.com',
-        name: 'Test User',
+        firstName: 'Test',
+        lastName: 'User',
         role: UserRole.ADMIN,
         createdAt: new Date('2026-01-01'),
         updatedAt: new Date('2026-01-10'),
@@ -27,7 +28,8 @@ describe('User Entity', () => {
       // Assert
       expect(user.id).toBe('user-123');
       expect(user.email).toBe('test@example.com');
-      expect(user.name).toBe('Test User');
+      expect(user.firstName).toBe('Test');
+      expect(user.lastName).toBe('User');
       expect(user.role).toBe(UserRole.ADMIN);
       expect(user.createdAt).toEqual(new Date('2026-01-01'));
       expect(user.updatedAt).toEqual(new Date('2026-01-10'));

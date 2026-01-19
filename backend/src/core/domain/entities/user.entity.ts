@@ -8,7 +8,8 @@ export class User {
   private constructor(
     public readonly id: string,
     public email: string,
-    public name: string,
+    public firstName: string,
+    public lastName: string,
     public role: UserRole,
     public readonly createdAt: Date,
     public updatedAt: Date,
@@ -20,7 +21,8 @@ export class User {
   static reconstitute(data: {
     id: string;
     email: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     role: UserRole;
     createdAt: Date;
     updatedAt: Date;
@@ -28,7 +30,8 @@ export class User {
     return new User(
       data.id,
       data.email,
-      data.name,
+      data.firstName,
+      data.lastName,
       data.role,
       data.createdAt,
       data.updatedAt,

@@ -34,13 +34,30 @@ model User {
 
 
 // ============================================
+// Task Status Enum
+// ============================================
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+// ============================================
+// User Role Enum
+// ============================================
+enum UserRole {
+  ADMIN
+  INTERN
+}
+
+// ============================================
 // Task Model
 // ============================================
 model Task {
   id             String     @id @default(uuid())
   title          String
   description    String?    @db.Text
-  status         String @default("TODO")
+  status         TaskStatus @default(TODO)
   estimatedHours Int?       @map("estimated_hours")
   actualHours    Int?       @map("actual_hours")
   deadline       DateTime?
@@ -71,7 +88,7 @@ model ScrumNote {
   id          String   @id @default(uuid())
   date        DateTime @default(now())
   whatIDid    String?  @map("what_i_did") @db.Text
-  whatIWillDo String?  @map("what_i_will_do") @db.Text
+  nextSteps   String?  @map("next_steps") @db.Text
   blockers    String?  @db.Text
 
   // Relations

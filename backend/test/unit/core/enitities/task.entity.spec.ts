@@ -18,6 +18,7 @@ describe('Task Entity',() => {
                 title: 'Implement authentication',
                 description: 'Implement user authentication using JWT',
                 deadline: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+                creatorId: 'test-creator-id',
             };
 
             // Act
@@ -39,6 +40,7 @@ describe('Task Entity',() => {
             const data = {
                 title: 'Set up project',
                 description: 'Initialize the project repository and structure',
+                creatorId: 'test-creator-id',
             };
 
             // Act
@@ -53,6 +55,7 @@ describe('Task Entity',() => {
             const data = {
                 title: '   Write unit tests   ',
                 description: '   Ensure all core entities are tested   ',
+                creatorId: 'test-creator-id',
             };
 
             // Act
@@ -68,6 +71,7 @@ describe('Task Entity',() => {
             const data = {
                 title: '',
                 description: 'Valid description',
+                creatorId: 'test-creator-id',
             };
             // Act & Assert
             expect(() => Task.create(data)).toThrow('Task title cannot be empty');
@@ -78,6 +82,7 @@ describe('Task Entity',() => {
             const data = {
                 title: '   ',
                 description: 'Valid description',
+                creatorId: 'test-creator-id',
             };
             // Act & Assert
             expect(() => Task.create(data)).toThrow('Task title cannot be empty');
@@ -88,6 +93,7 @@ describe('Task Entity',() => {
             const data = {
                 title: 'a'.repeat(256),
                 description: 'Valid description',
+                creatorId: 'test-creator-id',
             };
             // Act & Assert
             expect(() => Task.create(data)).toThrow('Task title cannot exceed 255 characters');
@@ -98,6 +104,7 @@ describe('Task Entity',() => {
             const data = {
                 title: 'Valid Title',
                 description: '',
+                creatorId: 'test-creator-id',
             };
             // Act & Assert
             expect(() => Task.create(data)).toThrow('Task description cannot be empty');
@@ -109,6 +116,7 @@ describe('Task Entity',() => {
                 title: 'Valid Title',
                 description: 'Valid description',
                 deadline: new Date(Date.now() - 24 * 60 * 60 * 1000), // Yesterday
+                creatorId: 'test-creator-id',
             };
             // Act & Assert
             expect(() => Task.create(data)).toThrow('Task deadline cannot be in the past');
@@ -127,6 +135,7 @@ describe('Task Entity',() => {
                 deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
                 createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
                 updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+                creatorId: 'test-creator-id',
             };
 
             // Act
@@ -150,6 +159,7 @@ describe('Task Entity',() => {
             const task = Task.create({
                 title: 'Code Review',
                 description: 'Review code for the new feature',
+                creatorId: 'test-creator-id',
             });
             const userId = 'user-123';
             const originalUpdatedAt = task.updatedAt;
@@ -172,13 +182,14 @@ describe('Task Entity',() => {
             const task = Task.create({
                 title: 'Design Database Schema',
                 description: 'Create ER diagrams and define relationships',
+                creatorId: 'test-creator-id',
             });
             const userId = 'user-456';
 
             // Act & Assert
             expect(() => {
                 task.assign(userId, UserRole.INTERN);
-            }).toThrow('TaskNotAssignableException');
+            }).toThrow(TaskNotAssignableException);
             expect(() => task.assign(userId, UserRole.INTERN)).toThrow(
                 'Only admins can assign tasks',
             );
@@ -195,6 +206,7 @@ describe('Task Entity',() => {
                 deadline: null,
                 createdAt: new Date(),
                 updatedAt: new Date(),
+                creatorId: 'test-creator-id',
             });
             const userId = 'user-999';
 
@@ -215,6 +227,7 @@ describe('Task Entity',() => {
       const task = Task.create({
         title: 'Test Task',
         description: 'Test Description',
+        creatorId: 'test-creator-id',
       });
       task.assign('user-123', UserRole.ADMIN);
 
@@ -236,6 +249,7 @@ describe('Task Entity',() => {
         deadline: null,
         createdAt: new Date(),
         updatedAt: new Date(),
+        creatorId: 'test-creator-id',
       });
 
       // Act
@@ -256,6 +270,7 @@ describe('Task Entity',() => {
         deadline: null,
         createdAt: new Date(),
         updatedAt: new Date(),
+        creatorId: 'test-creator-id',
       });
 
       // Act & Assert
@@ -269,6 +284,7 @@ describe('Task Entity',() => {
       const task = Task.create({
         title: 'Test Task',
         description: 'Test Description',
+        creatorId: 'test-creator-id',
       });
       task.assign('user-123', UserRole.ADMIN);
 
@@ -286,6 +302,7 @@ describe('Task Entity',() => {
       const task = Task.create({
         title: 'Test Task',
         description: 'Test Description',
+        creatorId: 'test-creator-id',
       });
       task.assign('user-123', UserRole.ADMIN);
 
@@ -303,6 +320,7 @@ describe('Task Entity',() => {
       const task = Task.create({
         title: 'Old Title',
         description: 'Old Description',
+        creatorId: 'test-creator-id',
       });
 
       // Act
@@ -326,6 +344,7 @@ describe('Task Entity',() => {
       const task = Task.create({
         title: 'Test Task',
         description: 'Test Description',
+        creatorId: 'test-creator-id',
       });
 
       // Act & Assert
@@ -339,6 +358,7 @@ describe('Task Entity',() => {
       const task = Task.create({
         title: 'Test Task',
         description: 'Test Description',
+        creatorId: 'test-creator-id',
       });
 
       // Act & Assert
@@ -352,6 +372,7 @@ describe('Task Entity',() => {
       const task = Task.create({
         title: 'Test Task',
         description: 'Test Description',
+        creatorId: 'test-creator-id',
       });
 
       // Act & Assert
@@ -373,6 +394,7 @@ describe('Task Entity',() => {
             deadline: new Date('2020-01-01'),
             createdAt: new Date(),
             updatedAt: new Date(),
+            creatorId: 'test-creator-id',
         });
 
         // Act
@@ -393,6 +415,7 @@ describe('Task Entity',() => {
             deadline: new Date('2030-01-01'),
             createdAt: new Date(),
             updatedAt: new Date(),
+            creatorId: 'test-creator-id',
         });
 
         // Act
@@ -413,6 +436,7 @@ describe('Task Entity',() => {
             deadline: new Date('2020-01-01'),
             createdAt: new Date(),
             updatedAt: new Date(),
+            creatorId: 'test-creator-id',
         });
 
         // Act
@@ -427,6 +451,7 @@ describe('Task Entity',() => {
         const task = Task.create({
             title: 'Test Task',
             description: 'Test Description',
+            creatorId: 'test-creator-id',
         });
 
         // Act
@@ -443,6 +468,7 @@ describe('Task Entity',() => {
         const task = Task.create({
             title: 'Test Task',
             description: 'Test Description',
+            creatorId: 'test-creator-id',
         });
         task.assign('user-123', UserRole.ADMIN);
 
@@ -458,6 +484,7 @@ describe('Task Entity',() => {
         const task = Task.create({
             title: 'Test Task',
             description: 'Test Description',
+            creatorId: 'test-creator-id',
         });
         task.assign('user-123', UserRole.ADMIN);
 
@@ -473,6 +500,7 @@ describe('Task Entity',() => {
         const task = Task.create({
             title: 'Test Task',
             description: 'Test Description',
+            creatorId: 'test-creator-id',
         });
 
         // Act
@@ -489,6 +517,7 @@ describe('Task Entity',() => {
             const task = Task.create({
                 title: 'Test Task',
                 description: 'Test Description',
+                creatorId: 'test-creator-id',
             });
 
             // Act
@@ -503,6 +532,7 @@ describe('Task Entity',() => {
             const task = Task.create({
                 title: 'Test Task',
                 description: 'Test Description',
+                creatorId: 'test-creator-id',
             });
 
             // Act

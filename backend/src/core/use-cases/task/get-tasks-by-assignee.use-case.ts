@@ -3,13 +3,6 @@ import { UserNotFoundException } from "@/core/domain/exceptions/user-not-found.e
 import { ITaskInteractor, IUserInteractor } from "@/core/interactors";
 
 /**
- * Input pour récupérer les tâches d'un utilisateur
- */
-export interface GetTasksByAssigneeInput {
-  assigneeId: string;
-}
-
-/**
  * Use Case : Récupérer toutes les tâches assignées à un utilisateur
  */
 export class GetTasksByAssigneeUseCase {
@@ -18,14 +11,14 @@ export class GetTasksByAssigneeUseCase {
     private readonly userInteractor: IUserInteractor,
   ) {}
 
-  async execute(input: GetTasksByAssigneeInput): Promise<Task[]> {
+  async execute(assigneeId: string): Promise<Task[]> {
     // Vérifier que l'utilisateur existe
-    const userExists = await this.userInteractor.exists(input.assigneeId);
+    const userExists = await this.userInteractor.exists(assigneeId);
     
     if (!userExists) {
-      throw new UserNotFoundException(input.assigneeId);
+      throw new UserNotFoundException(assigneeId);
     }
 
-    return this.taskInteractor.findByAssignee(input.assigneeId);
+    return this.taskInteractor.findByAssignee(assigneeId);
   }
 }

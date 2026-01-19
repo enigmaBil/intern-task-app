@@ -19,7 +19,7 @@ export class ScrumNote {
     public readonly id: string,
     public readonly date: Date,
     public whatIDid: string,
-    public blockers: string | null,
+    public blockers: string,
     public nextSteps: string,
     public readonly userId: string,
     public readonly createdAt: Date,
@@ -54,7 +54,7 @@ export class ScrumNote {
       crypto.randomUUID(),
       normalizedDate,
       data.whatIDid.trim(),
-      data.blockers?.trim() || null,
+      data.blockers?.trim() || '',
       data.nextSteps.trim(),
       data.userId,
       now,
@@ -69,7 +69,7 @@ export class ScrumNote {
     id: string;
     date: Date;
     whatIDid: string;
-    blockers: string | null;
+    blockers: string;
     nextSteps: string;
     userId: string;
     createdAt: Date;
@@ -103,7 +103,7 @@ export class ScrumNote {
     }
 
     if (data.blockers !== undefined) {
-      this.blockers = data.blockers?.trim() || null;
+      this.blockers = data.blockers?.trim() || '';
     }
 
     if (data.nextSteps !== undefined) {

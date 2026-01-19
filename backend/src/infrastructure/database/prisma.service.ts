@@ -17,7 +17,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   private pool: Pg.Pool;
 
   constructor(private configService: ConfigService) {
-    const pool = new Pg.Pool({
+    this.pool = new Pg.Pool({
         connectionString: this.configService.get<string>('DATABASE_URL'),
         max: parseInt(this.configService.get<string>('DB_POOL_MAX') || '10', 10),
         min: parseInt(this.configService.get<string>('DB_POOL_MIN') || '2', 10),
@@ -25,7 +25,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
         connectionTimeoutMillis: parseInt(this.configService.get<string>('DB_CONNECTION_TIMEOUT') || '2000', 10),
     });
 
-    const adapter = new PrismaPg(pool);
+    const adapter = new PrismaPg(this.pool);
 
     this.client = new PrismaClient({
       adapter,
@@ -49,6 +49,7 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     this.client.$on('error' as never, (e: any) => {
       this.logger.error(`Prisma Error: ${e.message}`);
     });
+
 
     this.client.$on('warn' as never, (e: any) => {
       this.logger.warn(`Prisma Warning: ${e.message}`);

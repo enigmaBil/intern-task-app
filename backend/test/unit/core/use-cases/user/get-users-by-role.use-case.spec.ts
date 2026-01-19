@@ -31,7 +31,8 @@ describe('GetUsersByRoleUseCase', () => {
       const admin1 = User.reconstitute({
         id: 'admin-1',
         email: 'admin1@test.com',
-        name: 'Admin One',
+        firstName: 'Admin One',
+        lastName: 'Adminson',
         role: UserRole.ADMIN,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -40,7 +41,8 @@ describe('GetUsersByRoleUseCase', () => {
       const admin2 = User.reconstitute({
         id: 'admin-2',
         email: 'admin2@test.com',
-        name: 'Admin Two',
+        firstName: 'Admin Two',
+        lastName: 'Adminson',
         role: UserRole.ADMIN,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -65,7 +67,8 @@ describe('GetUsersByRoleUseCase', () => {
       const intern1 = User.reconstitute({
         id: 'intern-1',
         email: 'intern1@test.com',
-        name: 'Intern One',
+        firstName: 'Intern One',
+        lastName: 'Internson',
         role: UserRole.INTERN,
         createdAt: new Date(),
         updatedAt: new Date(),
