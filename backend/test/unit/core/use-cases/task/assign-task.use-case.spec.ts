@@ -7,6 +7,7 @@ import { TaskNotFoundException } from "@/core/domain/exceptions/task-not-found.e
 import { UserNotFoundException } from "@/core/domain/exceptions/user-not-found.exception";
 import { ITaskInteractor, IUserInteractor } from "@/core/interactors";
 import { AssignTaskUseCase } from "@/core/use-cases/task/assign-task.use-case";
+import { request } from "http";
 
 describe('AssignTaskUseCase', () => {
   let useCase: AssignTaskUseCase;
@@ -32,6 +33,7 @@ describe('AssignTaskUseCase', () => {
       findByRole: jest.fn(),
       exists: jest.fn(),
       emailExists: jest.fn(),
+      save: jest.fn(),
     };
 
     useCase = new AssignTaskUseCase(mockTaskInteractor, mockUserInteractor);
@@ -79,7 +81,8 @@ describe('AssignTaskUseCase', () => {
       const input = {
         taskId: 'task-123',
         assigneeId: 'intern-123',
-        requesterId: 'admin-123',
+        creatorId: 'admin-123',
+        requesterRole: UserRole.ADMIN,
       };
 
       mockTaskInteractor.findById.mockResolvedValue(task);
@@ -103,7 +106,8 @@ describe('AssignTaskUseCase', () => {
       const input = {
         taskId: 'non-existent-task',
         assigneeId: 'intern-123',
-        requesterId: 'admin-123',
+        creatorId: 'admin-123',
+        requesterRole: UserRole.ADMIN,
       };
 
       mockTaskInteractor.findById.mockResolvedValue(null);
@@ -125,7 +129,8 @@ describe('AssignTaskUseCase', () => {
       const input = {
         taskId: 'task-123',
         assigneeId: 'non-existent-user',
-        requesterId: 'admin-123',
+        creatorId: 'admin-123',
+        requesterRole: UserRole.ADMIN,
       };
 
       mockTaskInteractor.findById.mockResolvedValue(task);
@@ -167,7 +172,8 @@ describe('AssignTaskUseCase', () => {
       const input = {
         taskId: 'task-123',
         assigneeId: 'intern-456',
-        requesterId: 'intern-123',
+        creatorId: 'intern-123',
+        requesterRole: UserRole.INTERN,
       };
 
       mockTaskInteractor.findById.mockResolvedValue(task);
@@ -217,7 +223,8 @@ describe('AssignTaskUseCase', () => {
       const input = {
         taskId: 'task-123',
         assigneeId: 'intern-123',
-        requesterId: 'admin-123',
+        creatorId: 'admin-123',
+        requesterRole: UserRole.ADMIN,
       };
 
       mockTaskInteractor.findById.mockResolvedValue(task);

@@ -16,6 +16,7 @@ describe('GetUsersByRoleUseCase', () => {
       findByRole: jest.fn(),
       exists: jest.fn(),
       emailExists: jest.fn(),
+      save: jest.fn(),
     };
 
     useCase = new GetUsersByRoleUseCase(mockUserInteractor);
@@ -48,12 +49,10 @@ describe('GetUsersByRoleUseCase', () => {
         updatedAt: new Date(),
       });
 
-      const input = { role: UserRole.ADMIN };
-
       mockUserInteractor.findByRole.mockResolvedValue([admin1, admin2]);
 
       // Act
-      const result = await useCase.execute(input);
+      const result = await useCase.execute(UserRole.ADMIN);
 
       // Assert
       expect(mockUserInteractor.findByRole).toHaveBeenCalledWith(UserRole.ADMIN);
@@ -74,12 +73,10 @@ describe('GetUsersByRoleUseCase', () => {
         updatedAt: new Date(),
       });
 
-      const input = { role: UserRole.INTERN };
-
       mockUserInteractor.findByRole.mockResolvedValue([intern1]);
 
       // Act
-      const result = await useCase.execute(input);
+      const result = await useCase.execute(UserRole.INTERN);
 
       // Assert
       expect(mockUserInteractor.findByRole).toHaveBeenCalledWith(UserRole.INTERN);
@@ -89,12 +86,10 @@ describe('GetUsersByRoleUseCase', () => {
 
     it('should return empty array when no users with that role exist', async () => {
       // Arrange
-      const input = { role: UserRole.ADMIN };
-
       mockUserInteractor.findByRole.mockResolvedValue([]);
 
       // Act
-      const result = await useCase.execute(input);
+      const result = await useCase.execute(UserRole.ADMIN);
 
       // Assert
       expect(result).toEqual([]);

@@ -293,7 +293,7 @@ export class TaskController {
     const task = await this.assignTaskUseCase.execute({
       taskId: id,
       assigneeId: dto.assigneeId,
-      requesterId: user.id,
+      creatorId: user.id,
       requesterRole: user.role,
     });
     return TaskPresentationMapper.toDto(task);

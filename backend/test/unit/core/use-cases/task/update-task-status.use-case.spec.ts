@@ -31,6 +31,7 @@ describe('UpdateTaskStatusUseCase', () => {
       findByRole: jest.fn(),
       exists: jest.fn(),
       emailExists: jest.fn(),
+      save: jest.fn(),
     };
 
     useCase = new UpdateTaskStatusUseCase(mockTaskInteractor, mockUserInteractor);

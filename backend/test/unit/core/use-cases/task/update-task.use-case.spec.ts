@@ -28,6 +28,7 @@ describe('UpdateTaskUseCase', () => {
       findByRole: jest.fn(),
       exists: jest.fn(),
       emailExists: jest.fn(),
+      save: jest.fn(),
     };
 
     useCase = new UpdateTaskUseCase(mockTaskInteractor, mockUserInteractor);
@@ -60,7 +61,8 @@ describe('UpdateTaskUseCase', () => {
         taskId: 'task-123',
         title: 'New Title',
         description: 'New Description',
-        requesterId: 'admin-123',
+        userId: 'admin-123',
+        userRole: UserRole.ADMIN,
       };
 
       mockTaskInteractor.findById.mockResolvedValue(task);
@@ -97,7 +99,8 @@ describe('UpdateTaskUseCase', () => {
       const input = {
         taskId: 'task-123',
         title: 'New Title',
-        requesterId: 'intern-123',
+        userId: 'intern-123',
+        userRole: UserRole.INTERN,
       };
 
       mockTaskInteractor.findById.mockResolvedValue(task);

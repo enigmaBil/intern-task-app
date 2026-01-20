@@ -16,6 +16,7 @@ describe('GetUserByIdUseCase', () => {
       findByRole: jest.fn(),
       exists: jest.fn(),
       emailExists: jest.fn(),
+      save: jest.fn(),
     };
 
     useCase = new GetUserByIdUseCase(mockUserInteractor);
@@ -38,12 +39,10 @@ describe('GetUserByIdUseCase', () => {
         updatedAt: new Date(),
       });
 
-      const input = { userId: 'user-123' };
-
       mockUserInteractor.findById.mockResolvedValue(user);
 
       // Act
-      const result = await useCase.execute(input);
+      const result = await useCase.execute('user-123');
 
       // Assert
       expect(mockUserInteractor.findById).toHaveBeenCalledWith('user-123');
@@ -53,12 +52,10 @@ describe('GetUserByIdUseCase', () => {
 
     it('should throw UserNotFoundException when user does not exist', async () => {
       // Arrange
-      const input = { userId: 'non-existent-user' };
-
       mockUserInteractor.findById.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(useCase.execute(input)).rejects.toThrow(UserNotFoundException);
+      await expect(useCase.execute('non-existent-user')).rejects.toThrow(UserNotFoundException);
       expect(mockUserInteractor.findById).toHaveBeenCalledWith('non-existent-user');
     });
   });

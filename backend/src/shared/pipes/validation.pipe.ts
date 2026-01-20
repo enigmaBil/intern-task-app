@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
+import { skip } from 'rxjs';
 
 /**
  * Pipe de validation global
@@ -22,13 +23,17 @@ export class ValidationPipe implements PipeTransform<any> {
     }
 
     // Transformer le plain object en instance de classe
-    const object = plainToInstance(metatype, value);
+    const object = plainToInstance(metatype, value, {
+      enableImplicitConversion: true,
+      excludeExtraneousValues: false,
+     });
 
     // Valider l'objet
     const errors = await validate(object, {
       whitelist: true, // Retire les propriétés non décorées
-      forbidNonWhitelisted: true, // Erreur si propriétés non autorisées
+      forbidNonWhitelisted: false, //pas d'erreur pour propriétés non décorées
       transform: true, // Active la transformation automatique
+      skipMissingProperties: false, // Valide toutes les propriétés
     });
 
     if (errors.length > 0) {

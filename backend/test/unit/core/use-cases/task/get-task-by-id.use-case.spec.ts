@@ -42,12 +42,10 @@ describe('GetTaskByIdUseCase', () => {
         creatorId: 'test-creator-id',
       });
 
-      const input = { taskId: 'task-123' };
-
       mockTaskInteractor.findById.mockResolvedValue(task);
 
       // Act
-      const result = await useCase.execute(input);
+      const result = await useCase.execute('task-123');
 
       // Assert
       expect(mockTaskInteractor.findById).toHaveBeenCalledWith('task-123');
@@ -56,12 +54,10 @@ describe('GetTaskByIdUseCase', () => {
 
     it('should throw TaskNotFoundException when task does not exist', async () => {
       // Arrange
-      const input = { taskId: 'non-existent-task' };
-
       mockTaskInteractor.findById.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(useCase.execute(input)).rejects.toThrow(TaskNotFoundException);
+      await expect(useCase.execute('non-existent-task')).rejects.toThrow(TaskNotFoundException);
     });
   });
 });

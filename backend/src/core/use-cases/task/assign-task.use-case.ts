@@ -10,7 +10,7 @@ import { ITaskInteractor, IUserInteractor } from "@/core/interactors";
 export interface AssignTaskInput {
   taskId: string;
   assigneeId: string;
-  requesterId: string;
+  creatorId: string;
   requesterRole: UserRole;
 }
 
@@ -45,10 +45,10 @@ export class AssignTaskUseCase {
     }
 
     // Vérifier que le requester existe et récupérer son rôle
-    const requester = await this.userInteractor.findById(input.requesterId);
+    const requester = await this.userInteractor.findById(input.creatorId);
     
     if (!requester) {
-      throw new UserNotFoundException(input.requesterId);
+      throw new UserNotFoundException(input.creatorId);
     }
 
     // Assigner la tâche (la validation métier est dans l'entité)

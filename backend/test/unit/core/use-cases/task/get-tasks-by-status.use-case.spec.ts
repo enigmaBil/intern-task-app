@@ -41,12 +41,10 @@ describe('GetTasksByStatusUseCase', () => {
         creatorId: 'test-creator-id',
       });
 
-      const input = { status: TaskStatus.TODO };
-
       mockTaskInteractor.findByStatus.mockResolvedValue([task1, task2]);
 
       // Act
-      const result = await useCase.execute(input);
+      const result = await useCase.execute(TaskStatus.TODO);
 
       // Assert
       expect(mockTaskInteractor.findByStatus).toHaveBeenCalledWith(TaskStatus.TODO,);
@@ -55,12 +53,10 @@ describe('GetTasksByStatusUseCase', () => {
 
     it('should return empty array when no tasks with that status exist', async () => {
       // Arrange
-      const input = { status: TaskStatus.DONE };
-
       mockTaskInteractor.findByStatus.mockResolvedValue([]);
 
       // Act
-      const result = await useCase.execute(input);
+      const result = await useCase.execute(TaskStatus.DONE);
 
       // Assert
       expect(result).toEqual([]);

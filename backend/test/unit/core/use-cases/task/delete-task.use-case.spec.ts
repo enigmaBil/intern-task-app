@@ -29,6 +29,7 @@ describe('DeleteTaskUseCase', () => {
       findByRole: jest.fn(),
       exists: jest.fn(),
       emailExists: jest.fn(),
+      save: jest.fn(),
     };
 
     useCase = new DeleteTaskUseCase(mockTaskInteractor, mockUserInteractor);
@@ -57,17 +58,12 @@ describe('DeleteTaskUseCase', () => {
         updatedAt: new Date(),
       });
 
-      const input = {
-        taskId: 'task-123',
-        requesterId: 'admin-123',
-      };
-
       mockTaskInteractor.findById.mockResolvedValue(task);
       mockUserInteractor.findById.mockResolvedValue(admin);
       mockTaskInteractor.delete.mockResolvedValue(undefined);
 
       // Act
-      await useCase.execute(input);
+      await useCase.execute('task-123', 'admin-123', UserRole.ADMIN);
 
       // Assert
       expect(mockTaskInteractor.delete).toHaveBeenCalledWith('task-123');
@@ -91,16 +87,11 @@ describe('DeleteTaskUseCase', () => {
         updatedAt: new Date(),
       });
 
-      const input = {
-        taskId: 'task-123',
-        requesterId: 'intern-123',
-      };
-
       mockTaskInteractor.findById.mockResolvedValue(task);
       mockUserInteractor.findById.mockResolvedValue(intern);
 
       // Act & Assert
-      await expect(useCase.execute(input)).rejects.toThrow(UnauthorizedException);
+      await expect(useCase.execute('task-123', 'intern-123', UserRole.INTERN)).rejects.toThrow(UnauthorizedException);
       expect(mockTaskInteractor.delete).not.toHaveBeenCalled();
     });
   });

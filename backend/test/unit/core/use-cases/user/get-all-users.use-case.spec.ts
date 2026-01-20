@@ -15,6 +15,7 @@ describe('GetAllUsersUseCase', () => {
       findByRole: jest.fn(),
       exists: jest.fn(),
       emailExists: jest.fn(),
+      save: jest.fn(),
     };
 
     useCase = new GetAllUsersUseCase(mockUserInteractor);

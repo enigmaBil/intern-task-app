@@ -38,6 +38,7 @@ describe('CreateTaskUseCase', () => {
       findByRole: jest.fn(),
       exists: jest.fn(),
       emailExists: jest.fn(),
+      save: jest.fn(),
     };
 
     // Créer l'instance du use case avec les mocks
@@ -65,7 +66,7 @@ describe('CreateTaskUseCase', () => {
         title: 'New Task',
         description: 'Task Description',
         deadline: new Date('2026-12-31'),
-        requesterId: 'admin-123',
+        creatorId: 'admin-123',
         };
 
         // Mock: L'admin existe
@@ -90,7 +91,7 @@ describe('CreateTaskUseCase', () => {
         const input = {
         title: 'New Task',
         description: 'Task Description',
-        requesterId: 'non-existent-user',
+        creatorId: 'non-existent-user',
         };
 
         // Mock: L'utilisateur n'existe pas
@@ -117,7 +118,7 @@ describe('CreateTaskUseCase', () => {
         const input = {
         title: 'New Task',
         description: 'Task Description',
-        requesterId: 'intern-123',
+        creatorId: 'intern-123',
         };
 
         // Mock: L'intern existe
@@ -144,7 +145,7 @@ describe('CreateTaskUseCase', () => {
         const input = {
         title: '',
         description: 'Task Description',
-        requesterId: 'admin-123',
+        creatorId: 'admin-123',
         };
 
         mockUserInteractor.findById.mockResolvedValue(admin);
@@ -170,7 +171,7 @@ describe('CreateTaskUseCase', () => {
         title: 'New Task',
         description: 'Task Description',
         deadline: new Date('2020-01-01'),
-        requesterId: 'admin-123',
+        creatorId: 'admin-123',
         };
 
         mockUserInteractor.findById.mockResolvedValue(admin);

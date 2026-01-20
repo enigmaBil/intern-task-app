@@ -28,6 +28,7 @@ describe('GetTasksByAssigneeUseCase', () => {
       findByRole: jest.fn(),
       exists: jest.fn(),
       emailExists: jest.fn(),
+      save: jest.fn(),
     };
 
     useCase = new GetTasksByAssigneeUseCase(mockTaskInteractor,mockUserInteractor);
@@ -52,13 +53,11 @@ describe('GetTasksByAssigneeUseCase', () => {
         creatorId: 'test-creator-id',
       });
 
-      const input = { assigneeId: 'user-123' };
-
       mockUserInteractor.exists.mockResolvedValue(true);
       mockTaskInteractor.findByAssignee.mockResolvedValue([task1]);
 
       // Act
-      const result = await useCase.execute(input);
+      const result = await useCase.execute('user-123');
 
       // Assert
       expect(mockUserInteractor.exists).toHaveBeenCalledWith('user-123');
@@ -70,12 +69,10 @@ describe('GetTasksByAssigneeUseCase', () => {
 
     it('should throw UserNotFoundException when user does not exist', async () => {
       // Arrange
-      const input = { assigneeId: 'non-existent-user' };
-
       mockUserInteractor.exists.mockResolvedValue(false);
 
       // Act & Assert
-      await expect(useCase.execute(input)).rejects.toThrow(UserNotFoundException);
+      await expect(useCase.execute('non-existent-user')).rejects.toThrow(UserNotFoundException);
       expect(mockTaskInteractor.findByAssignee).not.toHaveBeenCalled();
     });
   });

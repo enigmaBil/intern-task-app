@@ -63,6 +63,7 @@ describe('UpdateScrumNoteUseCase', () => {
         noteId: 'note-123',
         whatIDid: 'New task',
         userId: 'intern-123',
+        userRole: UserRole.INTERN,
         };
 
         mockScrumNoteInteractor.findById.mockResolvedValue(note);
@@ -99,6 +100,7 @@ describe('UpdateScrumNoteUseCase', () => {
         noteId: 'note-123',
         whatIDid: 'New task',
         userId: 'admin-456',
+        userRole: UserRole.ADMIN,
         };
 
         mockScrumNoteInteractor.findById.mockResolvedValue(note);
@@ -133,6 +135,7 @@ describe('UpdateScrumNoteUseCase', () => {
         noteId: 'note-123',
         whatIDid: 'New task',
         userId: 'intern-456',
+        userRole: UserRole.INTERN,
         };
 
         mockScrumNoteInteractor.findById.mockResolvedValue(note);
