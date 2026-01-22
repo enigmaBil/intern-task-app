@@ -12,6 +12,19 @@ export class PrismaScrumNoteRepository implements IScrumNoteInteractor {
     constructor(private readonly prisma: PrismaService) { }
 
     /**
+     * Récupère toutes les notes de scrum
+     */
+    async findAll(): Promise<ScrumNote[]> {
+        const prismaScrumNotes = await this.prisma.scrumNote.findMany({
+            orderBy: {
+                date: 'desc',
+            },
+        });
+
+        return ScrumNotePersistenceMapper.toDomainList(prismaScrumNotes);
+    }
+
+    /**
      * Récupère une note de scrum par son ID
      */
     async findById(id: string): Promise<ScrumNote | null> {

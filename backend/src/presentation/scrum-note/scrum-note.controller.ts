@@ -24,6 +24,7 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { CreateScrumNoteUseCase } from '@/core/use-cases/scrum-note/create-scrum-note.use-case';
 import { DeleteScrumNoteUseCase } from '@/core/use-cases/scrum-note/delete-scrum-note.use-case';
+import { GetAllScrumNotesUseCase } from '@/core/use-cases/scrum-note/get-all-scrum-notes.use-case';
 import { GetTodayNotesUseCase } from '@/core/use-cases/scrum-note/get-today-notes.use-case';
 import { GetUserNotesUseCase } from '@/core/use-cases/scrum-note/get-user-notes.use-case';
 import { UpdateScrumNoteUseCase } from '@/core/use-cases/scrum-note/update-scrum-note.use-case';
@@ -57,11 +58,34 @@ import { KeycloakAuthGuard } from '@/infrastructure/auth/guards';
 export class ScrumNoteController {
   constructor(
     private readonly createScrumNoteUseCase: CreateScrumNoteUseCase,
+    private readonly getAllScrumNotesUseCase: GetAllScrumNotesUseCase,
     private readonly getTodayNotesUseCase: GetTodayNotesUseCase,
     private readonly getUserNotesUseCase: GetUserNotesUseCase,
     private readonly updateScrumNoteUseCase: UpdateScrumNoteUseCase,
     private readonly deleteScrumNoteUseCase: DeleteScrumNoteUseCase,
   ) {}
+
+  /**
+   * Récupère toutes les notes de scrum
+   * @requires scrum_note:view ou ADMIN
+   */
+  @Get()
+  @Roles('scrum_note:view', 'ADMIN')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  @ApiOperation({
+    summary: 'Récupère toutes les notes de scrum',
+    description: 'Retourne toutes les notes de scrum sans filtre',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Notes récupérées avec succès',
+    type: [ScrumNoteResponseDto],
+  })
+  async getAllScrumNotes(): Promise<ScrumNoteResponseDto[]> {
+    const notes = await this.getAllScrumNotesUseCase.execute();
+    return ScrumNotePresentationMapper.toDtoList(notes);
+  }
 
   /**
    * Crée une nouvelle note de scrum

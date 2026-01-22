@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CreateScrumNoteUseCase } from '@/core/use-cases/scrum-note/create-scrum-note.use-case';
 import { DeleteScrumNoteUseCase } from '@/core/use-cases/scrum-note/delete-scrum-note.use-case';
+import { GetAllScrumNotesUseCase } from '@/core/use-cases/scrum-note/get-all-scrum-notes.use-case';
 import { GetTodayNotesUseCase } from '@/core/use-cases/scrum-note/get-today-notes.use-case';
 import { GetUserNotesUseCase } from '@/core/use-cases/scrum-note/get-user-notes.use-case';
 import { UpdateScrumNoteUseCase } from '@/core/use-cases/scrum-note/update-scrum-note.use-case';
@@ -23,6 +24,13 @@ import { ScrumNoteController } from './scrum-note.controller';
       useFactory: (scrumNoteInteractor, userInteractor) =>
         new CreateScrumNoteUseCase(scrumNoteInteractor, userInteractor),
       inject: ['IScrumNoteInteractor', 'IUserInteractor'],
+    },
+    // Use Case: Get All Scrum Notes
+    {
+      provide: GetAllScrumNotesUseCase,
+      useFactory: (scrumNoteInteractor) =>
+        new GetAllScrumNotesUseCase(scrumNoteInteractor),
+      inject: ['IScrumNoteInteractor'],
     },
     // Use Case: Get Today's Notes
     {

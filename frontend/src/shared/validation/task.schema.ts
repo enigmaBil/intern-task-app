@@ -11,8 +11,7 @@ export const createTaskSchema = z.object({
   
   description: z
     .string()
-    .min(1, 'La description est requise')
-    .max(2000, 'La description ne peut pas dépasser 2000 caractères'),
+    .min(1, 'La description est requise'),
   
   deadline: z
     .string()

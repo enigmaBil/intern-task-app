@@ -25,14 +25,20 @@ interface EditTaskModalProps {
   task: Task;
   onTaskUpdated?: () => void;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 /**
  * Modal réutilisable pour modifier une tâche
  */
-export function EditTaskModal({ task, onTaskUpdated, trigger }: EditTaskModalProps) {
-  const [open, setOpen] = useState(false);
+export function EditTaskModal({ task, onTaskUpdated, trigger, open: controlledOpen, onOpenChange }: EditTaskModalProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Utiliser le state contrôlé si fourni, sinon utiliser le state interne
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
   
   const {
     register,
@@ -98,14 +104,7 @@ export function EditTaskModal({ task, onTaskUpdated, trigger }: EditTaskModalPro
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="outline" size="sm" className="gap-2">
-            <Pencil className="h-4 w-4" />
-            Modifier
-          </Button>
-        )}
-      </DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
           <DialogTitle>Modifier la tâche</DialogTitle>

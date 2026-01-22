@@ -6,6 +6,15 @@ import { ScrumNote } from "../domain/entities/scrum-note.entity";
  * PORT pour l'accès aux scrum notes.
  */
 export interface IScrumNoteInteractor {
+
+  /**
+   * Récupère toutes les notes de scrum
+   * 
+   * @returns Liste de toutes les notes de scrum
+   */
+  findAll(): ScrumNote[] | PromiseLike<ScrumNote[]>;
+
+
   /**
    * Récupère une note de scrum par son ID
    * 

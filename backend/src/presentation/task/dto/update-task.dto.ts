@@ -23,6 +23,7 @@ export class UpdateTaskDto {
     minLength: 1,
     maxLength: 255,
   })
+  @IsOptional()
   @IsString({ message: 'Title must be a string' })
   @MinLength(1, { message: 'Title cannot be empty' })
   @MaxLength(255, { message: 'Title cannot exceed 255 characters' })
@@ -32,6 +33,7 @@ export class UpdateTaskDto {
     description: 'Description détaillée de la tâche',
     example: 'Mettre en place Keycloak avec JWT',
   })
+  @IsOptional()
   @IsString({ message: 'Description must be a string' })
   description?: string;
 
@@ -40,6 +42,7 @@ export class UpdateTaskDto {
     enum: TaskStatus,
     example: TaskStatus.IN_PROGRESS,
   })
+  @IsOptional()
   @IsEnum(TaskStatus, { message: 'Status must be a valid TaskStatus' })
   status?: TaskStatus;
 
@@ -49,6 +52,7 @@ export class UpdateTaskDto {
     type: String,
     format: 'date-time',
   })
+  @IsOptional()
   @IsDateString({}, { message: 'Deadline must be a valid ISO 8601 date string' })
   deadline?: string;
 }

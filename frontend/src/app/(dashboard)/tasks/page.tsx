@@ -21,7 +21,7 @@ export default function TasksPage() {
       <div className="mt-8">
         {isLoading && <LoadingSpinner />}
         {error && <ErrorMessage message={error} onRetry={refetch} />}
-        {!isLoading && !error && <KanbanBoard tasks={tasks} />}
+        {!isLoading && !error && <KanbanBoard tasks={tasks} onTaskUpdated={refetch} />}
       </div>
     </div>
   );

@@ -4,3 +4,4 @@ export * from './useTask';
 export * from './useTaskMutations';
 export * from './useUsers';
 export * from './useScrumNotes';
+export * from './useScrumNoteMutations';
