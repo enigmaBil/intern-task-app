@@ -1,0 +1,226 @@
+import { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+
+/**
+ * Configuration NextAuth avec Credentials Provider
+ * Appelle directement Keycloak pour authentifier avec email/password
+ * Respecte l'architecture Clean en isolant la configuration d'infrastructure
+ */
+export const authOptions: NextAuthOptions = {
+  providers: [
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          console.error('[Auth] Missing credentials');
+          return null;
+        }
+
+        try {
+          const keycloakIssuer = process.env.KEYCLOAK_ISSUER || 'http://localhost:8080/realms/Mini-Jira-Realm';
+          const tokenEndpoint = `${keycloakIssuer}/protocol/openid-connect/token`;
+          
+          console.log('[Auth] Attempting login:', {
+            endpoint: tokenEndpoint,
+            clientId: process.env.FRONTEND_CLIENT_ID || 'mini-jira-frontend',
+            username: credentials.email,
+          });
+
+          // Appeler directement Keycloak pour obtenir le token
+          const response = await fetch(tokenEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              client_id: process.env.FRONTEND_CLIENT_ID || 'mini-jira-frontend',
+              client_secret: process.env.FRONTEND_CLIENT_SECRET || '',
+              grant_type: 'password',
+              username: credentials.email,
+              password: credentials.password,
+              scope: 'openid email profile',
+            }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.text();
+            console.error('[Auth] Keycloak error:', {
+              status: response.status,
+              statusText: response.statusText,
+              error: errorData,
+            });
+            return null;
+          }
+
+          const tokens = await response.json();
+          console.log('[Auth] Successfully obtained tokens from Keycloak');
+          
+          // Décoder le token JWT pour extraire les informations utilisateur
+          const accessToken = tokens.access_token;
+          const payload = JSON.parse(atob(accessToken.split('.')[1]));
+
+          console.log('[Auth] Token payload:', {
+            sub: payload.sub,
+            email: payload.email,
+            name: payload.name,
+            roles: payload.realm_access?.roles,
+          });
+
+          // Extraire les rôles (ADMIN ou INTERN uniquement)
+          const realmRoles = payload.realm_access?.roles || [];
+          const clientRoles = payload.resource_access?.['mini-jira-frontend']?.roles || [];
+          const allRoles = [...realmRoles, ...clientRoles];
+          
+          // Déterminer le rôle principal (ADMIN prioritaire sur INTERN)
+          let role = 'INTERN';
+          if (allRoles.includes('ADMIN')) {
+            role = 'ADMIN';
+          }
+
+          const user = {
+            id: payload.sub,
+            email: payload.email || credentials.email,
+            name: payload.name || `${payload.given_name || ''} ${payload.family_name || ''}`,
+            firstName: payload.given_name || '',
+            lastName: payload.family_name || '',
+            role: role,
+            accessToken: tokens.access_token,
+            refreshToken: tokens.refresh_token,
+            idToken: tokens.id_token,
+            expiresAt: Math.floor(Date.now() / 1000) + tokens.expires_in,
+          };
+
+          console.log('[Auth] Returning user:', { id: user.id, email: user.email, role: user.role });
+          return user;
+        } catch (error) {
+          console.error('[Auth] Keycloak authentication error:', error);
+          return null;
+        }
+      },
+    }),
+  ],
+  pages: {
+    signIn: '/login',
+    error: '/login',
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      // Lors de la première connexion (user existe)
+      if (user) {
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.firstName = (user as any).firstName;
+        token.lastName = (user as any).lastName;
+        token.role = (user as any).role;
+        token.accessToken = (user as any).accessToken;
+        token.refreshToken = (user as any).refreshToken;
+        token.idToken = (user as any).idToken;
+        token.expiresAt = (user as any).expiresAt;
+      }
+
+      // Vérifier si le token doit être rafraîchi
+      if (token.expiresAt && Date.now() < (token.expiresAt as number) * 1000) {
+        return token;
+      }
+
+      // Le token a expiré, essayer de le rafraîchir
+      return await refreshAccessToken(token);
+    },
+    async session({ session, token }) {
+      // Transférer les informations du token à la session
+      const updatedSession = {
+        ...session,
+        user: {
+          id: token.id as string,
+          email: token.email as string,
+          name: token.name as string,
+          firstName: token.firstName as string,
+          lastName: token.lastName as string,
+          role: token.role as string,
+          image: null,
+        },
+        accessToken: token.accessToken as string,
+        error: token.error as string | undefined,
+      };
+
+      return updatedSession;
+    },
+  },
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 jours
+  },
+  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
+  events: {
+    async signOut({ token }) {
+      // Logout côté Keycloak
+      if (token.idToken) {
+        const issuer = process.env.KEYCLOAK_ISSUER;
+        const logoutUrl = `${issuer}/protocol/openid-connect/logout`;
+        
+        try {
+          await fetch(logoutUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              id_token_hint: token.idToken as string,
+              client_id: process.env.FRONTEND_CLIENT_ID || 'mini-jira-frontend',
+            }),
+          });
+        } catch (error) {
+          console.error('Keycloak logout error:', error);
+        }
+      }
+    },
+  },
+};
+
+/**
+ * Rafraîchit le token d'accès en utilisant le refresh token
+ */
+async function refreshAccessToken(token: any) {
+  try {
+    const issuer = process.env.KEYCLOAK_ISSUER;
+    const tokenEndpoint = `${issuer}/protocol/openid-connect/token`;
+
+    const response = await fetch(tokenEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        client_id: process.env.FRONTEND_CLIENT_ID || 'mini-jira-frontend',
+        client_secret: process.env.FRONTEND_CLIENT_SECRET || '',
+        grant_type: 'refresh_token',
+        refresh_token: token.refreshToken,
+      }),
+    });
+
+    const refreshedTokens = await response.json();
+
+    if (!response.ok) {
+      throw refreshedTokens;
+    }
+
+    return {
+      ...token,
+      accessToken: refreshedTokens.access_token,
+      expiresAt: Math.floor(Date.now() / 1000 + refreshedTokens.expires_in),
+      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
+      idToken: refreshedTokens.id_token ?? token.idToken,
+    };
+  } catch (error) {
+    console.error('Error refreshing access token:', error);
+    return {
+      ...token,
+      error: 'RefreshAccessTokenError',
+    };
+  }
+}
