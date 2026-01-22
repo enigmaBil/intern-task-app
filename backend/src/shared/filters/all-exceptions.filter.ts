@@ -50,7 +50,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
         status = HttpStatus.NOT_FOUND;
       } else if (error.includes('Unauthorized')) {
         status = HttpStatus.FORBIDDEN;
-      } else if (error.includes('InvalidInput')) {
+      } else if (error.includes('InvalidInput') || 
+                 message.includes('cannot be') ||
+                 message.includes('must be') ||
+                 message.includes('is required') ||
+                 message.includes('cannot exceed')) {
         status = HttpStatus.BAD_REQUEST;
       }
     }

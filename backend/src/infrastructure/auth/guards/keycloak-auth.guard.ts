@@ -32,4 +32,15 @@ export class KeycloakAuthGuard extends AuthGuard('keycloak') {
 
     return super.canActivate(context);
   }
+
+  handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
+    if (err || !user) {
+      this.logger.error(`JWT Validation failed:`, {
+        error: err?.message || err,
+        info: info?.message || info,
+        user: user,
+      });
+    }
+    return super.handleRequest(err, user, info, context);
+  }
 }

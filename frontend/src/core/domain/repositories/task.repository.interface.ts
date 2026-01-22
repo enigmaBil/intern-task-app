@@ -4,8 +4,7 @@ import { TaskStatus } from '../enums';
 export interface CreateTaskDto {
   title: string;
   description: string;
-  status: TaskStatus;
-  assigneeId?: string;
+  deadline?: string;
 }
 
 export interface UpdateTaskDto {

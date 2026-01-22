@@ -1,16 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { LayoutDashboard, ListTodo, Users, FileText, LogOut } from 'lucide-react';
-import { useAuth } from '@/presentation/hooks';
+import { LayoutDashboard, ListTodo, Users, FileText } from 'lucide-react';
+import { UserDropdown } from '@/presentation/components/layout/UserDropdown';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, logout } = useAuth();
-
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
@@ -32,31 +30,15 @@ export default function DashboardLayout({
             Notes Scrum
           </NavLink>
         </nav>
-        
-        {/* User info & logout */}
-        {user && (
-          <div className="absolute bottom-0 w-64 border-t bg-gray-50 p-4">
-            <div className="mb-3 text-sm">
-              <p className="font-medium">{user.firstName} {user.lastName}</p>
-              <p className="text-gray-600">{user.email}</p>
-            </div>
-            <button
-              onClick={logout}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
-            >
-              <LogOut size={16} />
-              <span>Déconnexion</span>
-            </button>
-          </div>
-        )}
       </aside>
 
       {/* Main content */}
       <div className="flex-1">
-        <header className="flex h-16 items-center border-b px-6">
+        <header className="flex h-16 items-center justify-between border-b px-6">
           <div className="flex items-center gap-4">
-            <h2 className="text-lg font-semibold">Bienvenue</h2>
+            {/* Le titre de la page sera géré par chaque page individuellement */}
           </div>
+          <UserDropdown />
         </header>
         <main className="p-6">{children}</main>
       </div>

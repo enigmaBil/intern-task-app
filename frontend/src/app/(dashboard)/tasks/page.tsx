@@ -3,6 +3,7 @@
 import { useTasks } from '@/presentation/hooks';
 import { KanbanBoard } from '@/presentation/components/task/KanbanBoard';
 import { LoadingSpinner, ErrorMessage } from '@/presentation/components/shared';
+import { AddTaskModal } from '@/presentation/components/modals';
 
 export default function TasksPage() {
   const { tasks, isLoading, error, refetch } = useTasks();
@@ -11,9 +12,7 @@ export default function TasksPage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Tâches</h1>
-        <button className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-          Nouvelle tâche
-        </button>
+        <AddTaskModal onTaskAdded={refetch} />
       </div>
       <p className="mt-4 text-gray-600">
         Tableau Kanban de gestion des tâches

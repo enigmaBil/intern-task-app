@@ -21,7 +21,8 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          const keycloakIssuer = process.env.KEYCLOAK_ISSUER || 'http://localhost:8080/realms/Mini-Jira-Realm';
+          // Utiliser l'URL interne Docker pour Keycloak (accessible depuis le serveur Next.js dans Docker)
+          const keycloakIssuer = process.env.KEYCLOAK_ISSUER || 'http://keycloak:8080/realms/Mini-Jira-Realm';
           const tokenEndpoint = `${keycloakIssuer}/protocol/openid-connect/token`;
           
           console.log('[Auth] Attempting login:', {
@@ -107,6 +108,7 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
     error: '/login',
   },
+  debug: process.env.NODE_ENV === 'development',
   callbacks: {
     async jwt({ token, user }) {
       // Lors de la première connexion (user existe)

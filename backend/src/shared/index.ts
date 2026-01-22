@@ -15,8 +15,5 @@ export * from './interceptors/transform.interceptor';
 export * from './middleware/logger.middleware';
 export * from './middleware/request-id.middleware';
 
-// Pipes
-export * from './pipes/validation.pipe';
-
 // Decorators
 export * from './decorators/api-paginated-response.decorator';

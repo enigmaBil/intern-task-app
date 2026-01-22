@@ -1,15 +1,15 @@
 import { ScrumNote } from '../entities';
 
 export interface CreateScrumNoteDto {
-  date: Date;
-  whatDidYesterday: string;
-  whatWillDoToday: string;
-  blockers: string;
+  whatIDid: string;
+  nextSteps: string;
+  blockers?: string;
+  date?: string;
 }
 
 export interface UpdateScrumNoteDto {
-  whatDidYesterday?: string;
-  whatWillDoToday?: string;
+  whatIDid?: string;
+  nextSteps?: string;
   blockers?: string;
 }
 

@@ -7,6 +7,7 @@ export interface Task {
   status: TaskStatus;
   assigneeId: string | null;
   creatorId: string;
+  deadline: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }

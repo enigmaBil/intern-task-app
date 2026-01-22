@@ -105,6 +105,13 @@ class HttpClient {
       case 400:
       case 422:
         throw new ValidationException(errorMessage, errorDetails);
+      case 403:
+        throw new UnauthorizedException(errorMessage);
+      case 500:
+      case 502:
+      case 503:
+        // Erreurs serveur - inclure le message pour le debugging
+        throw new Error(`Erreur serveur: ${errorMessage}`);
       default:
         throw new Error(errorMessage);
     }

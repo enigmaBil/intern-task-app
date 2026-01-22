@@ -63,10 +63,7 @@ export class ScrumNoteRepository implements IScrumNoteRepository {
   }
 
   async create(data: CreateScrumNoteDto): Promise<ScrumNote> {
-    const response = await httpClient.post<ScrumNote>(this.endpoint, {
-      ...data,
-      date: data.date.toISOString(),
-    });
+    const response = await httpClient.post<ScrumNote>(this.endpoint, data);
     
     return {
       ...response.data,
