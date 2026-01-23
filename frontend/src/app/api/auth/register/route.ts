@@ -16,15 +16,24 @@ export async function POST(request: NextRequest) {
     const keycloakUrl = process.env.KEYCLOAK_ISSUER?.replace('/realms/Mini-Jira-Realm', '') || 'http://keycloak:8080';
     const realm = 'Mini-Jira-Realm';
     
-    // Utiliser le client backend avec les permissions admin
+    console.log('[Register] Keycloak config:', {
+      keycloakUrl,
+      realm,
+      client_id: process.env.KEYCLOAK_CLIENT_ID,
+      has_secret: !!process.env.KEYCLOAK_CLIENT_SECRET,
+    });
+    
+    // Utiliser le service account du client backend
+    // NOTE: Le client mini-jira-backend doit avoir "Service Account Enabled" dans Keycloak
+    // et les rôles: manage-users, view-users du client realm-management
     const tokenResponse = await fetch(`${keycloakUrl}/realms/${realm}/protocol/openid-connect/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        client_id: process.env.FRONTEND_CLIENT_ID || 'mini-jira-frontend',
-        client_secret: process.env.FRONTEND_CLIENT_SECRET || '',
+        client_id: process.env.KEYCLOAK_CLIENT_ID || 'mini-jira-backend',
+        client_secret: process.env.KEYCLOAK_CLIENT_SECRET || '',
         grant_type: 'client_credentials',
       }),
     });
