@@ -12,16 +12,34 @@ import {
   SortingState,
 } from '@tanstack/react-table';
 import { ScrumNote } from '@/core/domain/entities';
-import { ArrowUpDown, AlertCircle } from 'lucide-react';
+import { ArrowUpDown, AlertCircle, MoreVertical, Edit, Trash } from 'lucide-react';
 import { Button } from '@/presentation/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/presentation/components/ui/dropdown-menu';
+import { EditScrumNoteModal, DeleteScrumNoteDialog } from '@/presentation/components/modals';
+import { useAuth } from '@/presentation/hooks/useAuth';
 
 interface ScrumNotesTableProps {
   notes: ScrumNote[];
+  onNoteUpdated?: () => void;
 }
 
-export function ScrumNotesTable({ notes }: ScrumNotesTableProps) {
+export function ScrumNotesTable({ notes, onNoteUpdated }: ScrumNotesTableProps) {
+  const { user } = useAuth();
   const [sorting, setSorting] = useState<SortingState>([{ id: 'date', desc: true }]);
   const [globalFilter, setGlobalFilter] = useState('');
+  const [editingNote, setEditingNote] = useState<ScrumNote | null>(null);
+  const [deletingNoteId, setDeletingNoteId] = useState<string | null>(null);
+
+  const handleSuccess = () => {
+    if (onNoteUpdated) {
+      onNoteUpdated();
+    }
+  };
 
   const columns = useMemo<ColumnDef<ScrumNote>[]>(
     () => [
@@ -85,8 +103,44 @@ export function ScrumNotesTable({ notes }: ScrumNotesTableProps) {
           );
         },
       },
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => {
+          const note = row.original;
+          // User can edit/delete their own notes or if they are ADMIN
+          const canModify = user && (user.id === note.userId || user.role === 'ADMIN');
+
+          if (!canModify) {
+            return <div className="text-center text-gray-400 text-xs">-</div>;
+          }
+
+          return (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setEditingNote(note)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Modifier
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setDeletingNoteId(note.id)}
+                  className="text-red-600 focus:text-red-600"
+                >
+                  <Trash className="mr-2 h-4 w-4" />
+                  Supprimer
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
+        },
+      },
     ],
-    []
+    [user, setEditingNote, setDeletingNoteId]
   );
 
   const table = useReactTable({
@@ -124,7 +178,7 @@ export function ScrumNotesTable({ notes }: ScrumNotesTableProps) {
       </div>
 
       <div className="rounded-md border overflow-x-auto">
-        <table className="w-full min-w-[600px]">
+        <table className="w-full min-w-[700px]">
           <thead className="bg-gray-50">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
@@ -199,6 +253,20 @@ export function ScrumNotesTable({ notes }: ScrumNotesTableProps) {
           </Button>
         </div>
       </div>
+
+      <EditScrumNoteModal
+        note={editingNote}
+        open={!!editingNote}
+        onOpenChange={(open) => !open && setEditingNote(null)}
+        onSuccess={handleSuccess}
+      />
+
+      <DeleteScrumNoteDialog
+        noteId={deletingNoteId}
+        open={!!deletingNoteId}
+        onOpenChange={(open) => !open && setDeletingNoteId(null)}
+        onSuccess={handleSuccess}
+      />
     </div>
   );
 }

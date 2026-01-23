@@ -233,7 +233,7 @@ export default function ScrumNotesPage() {
           viewMode === 'grid' ? (
             <ScrumNoteList notes={filteredNotes} onNoteUpdated={refetch} />
           ) : (
-            <ScrumNotesTable notes={filteredNotes} />
+            <ScrumNotesTable notes={filteredNotes} onNoteUpdated={refetch} />
           )
         )}
       </div>
