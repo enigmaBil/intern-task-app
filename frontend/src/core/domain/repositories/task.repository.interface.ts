@@ -20,10 +20,15 @@ export interface TaskFilters {
   creatorId?: string;
 }
 
+export interface AssignTaskDto {
+  assigneeId: string;
+}
+
 export interface ITaskRepository {
   findAll(filters?: TaskFilters): Promise<Task[]>;
   findById(id: string): Promise<Task | null>;
   create(data: CreateTaskDto): Promise<Task>;
   update(id: string, data: UpdateTaskDto): Promise<Task>;
   delete(id: string): Promise<void>;
+  assign(id: string, data: AssignTaskDto): Promise<Task>;
 }

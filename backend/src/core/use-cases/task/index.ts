@@ -5,3 +5,5 @@ export * from './get-tasks-by-assignee.use-case';
 export * from './get-tasks-by-status.use-case';
 export * from './update-task.use-case';
 export * from './get-all-tasks.use-case';
+export * from './assign-task.use-case';
+export * from './update-task-status.use-case';

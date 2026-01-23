@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { MoreVertical, Pencil, Trash2, Eye } from 'lucide-react';
+import { MoreVertical, Pencil, Trash2, Eye, UserCheck } from 'lucide-react';
 import { Task } from '@/core/domain/entities';
 import { TaskStatusLabels } from '@/core/domain/enums';
-import { EditTaskModal, TaskDetailsModal } from '@/presentation/components/modals';
+import { EditTaskModal, TaskDetailsModal, AssignTaskModal } from '@/presentation/components/modals';
 import { ConfirmDialog } from '@/presentation/components/shared/ConfirmDialog';
 import { useTaskMutations } from '@/presentation/hooks/useTaskMutations';
+import { useAuth } from '@/presentation/hooks';
 import { toast } from 'sonner';
 import { Button } from '@/presentation/components/ui/button';
 import {
@@ -26,7 +27,10 @@ export function TaskCard({ task, onTaskUpdated }: TaskCardProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [assignOpen, setAssignOpen] = useState(false);
   const { deleteTask, isLoading } = useTaskMutations();
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
 
   const handleDelete = async () => {
     const success = await deleteTask(task.id);
@@ -56,6 +60,12 @@ export function TaskCard({ task, onTaskUpdated }: TaskCardProps) {
               <Pencil className="mr-2 h-4 w-4" />
               Mettre à jour
             </DropdownMenuItem>
+            {isAdmin && (
+              <DropdownMenuItem onClick={() => setAssignOpen(true)}>
+                <UserCheck className="mr-2 h-4 w-4" />
+                Assigner
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={() => setDetailsOpen(true)}>
               <Eye className="mr-2 h-4 w-4" />
               Afficher détails
@@ -80,6 +90,12 @@ export function TaskCard({ task, onTaskUpdated }: TaskCardProps) {
         </p>
       )}
       
+      {task.assigneeId && (
+        <p className="mt-1 text-xs text-blue-600">
+          ✓ Assignée
+        </p>
+      )}
+      
       <div className="mt-4 flex items-center justify-between">
         <span className="text-xs text-gray-500">
           {TaskStatusLabels[task.status]}
@@ -91,6 +107,13 @@ export function TaskCard({ task, onTaskUpdated }: TaskCardProps) {
         open={editOpen}
         onOpenChange={setEditOpen}
         onTaskUpdated={onTaskUpdated}
+      />
+
+      <AssignTaskModal
+        task={task}
+        open={assignOpen}
+        onOpenChange={setAssignOpen}
+        onTaskAssigned={onTaskUpdated}
       />
 
       <TaskDetailsModal

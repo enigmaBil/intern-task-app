@@ -5,6 +5,7 @@ import {
   DeleteTaskUseCase,
   GetAllTasksUseCase,
   GetTaskByIdUseCase,
+  AssignTaskUseCase,
 } from '../use-cases/task';
 
 export class TaskInteractor {
@@ -16,6 +17,7 @@ export class TaskInteractor {
   public readonly deleteTask: DeleteTaskUseCase;
   public readonly getAllTasks: GetAllTasksUseCase;
   public readonly getTaskById: GetTaskByIdUseCase;
+  public readonly assignTask: AssignTaskUseCase;
 
   constructor() {
     this.taskRepository = new TaskRepository();
@@ -26,6 +28,7 @@ export class TaskInteractor {
     this.deleteTask = new DeleteTaskUseCase(this.taskRepository);
     this.getAllTasks = new GetAllTasksUseCase(this.taskRepository);
     this.getTaskById = new GetTaskByIdUseCase(this.taskRepository);
+    this.assignTask = new AssignTaskUseCase(this.taskRepository);
   }
 }
 

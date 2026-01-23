@@ -3,12 +3,16 @@
 import Link from 'next/link';
 import { LayoutDashboard, ListTodo, Users, FileText } from 'lucide-react';
 import { UserDropdown } from '@/presentation/components/layout/UserDropdown';
+import { useSession } from 'next-auth/react';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { data: session } = useSession();
+  const userRole = session?.user?.role;
+
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
@@ -26,9 +30,11 @@ export default function DashboardLayout({
           <NavLink href="/scrum-notes" icon={<FileText size={20} />}>
             Notes Scrum
           </NavLink>
-          <NavLink href="/users" icon={<Users size={20} />}>
-            Utilisateurs
-          </NavLink>
+          {userRole === 'ADMIN' && (
+            <NavLink href="/users" icon={<Users size={20} />}>
+              Utilisateurs
+            </NavLink>
+          )}
         </nav>
       </aside>
 

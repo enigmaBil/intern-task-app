@@ -121,15 +121,18 @@ export class TaskController {
   @Throttle({ default: { limit: 100, ttl: 60000 } })
   @ApiOperation({
     summary: 'Récupère toutes les tâches',
-    description: 'Retourne la liste complète des tâches',
+    description: 'Retourne la liste des tâches selon le rôle: ADMIN voit tout, INTERN voit uniquement ses tâches assignées',
   })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Liste des tâches récupérée avec succès',
     type: [TaskResponseDto],
   })
-  async getAllTasks(): Promise<TaskResponseDto[]> {
-    const tasks = await this.getAllTasksUseCase.execute();
+  async getAllTasks(@CurrentUser() user: User): Promise<TaskResponseDto[]> {
+    const tasks = await this.getAllTasksUseCase.execute({
+      userId: user.id,
+      userRole: user.role,
+    });
     return TaskPresentationMapper.toDtoList(tasks);
   }
 

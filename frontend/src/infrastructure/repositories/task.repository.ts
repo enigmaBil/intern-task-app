@@ -71,4 +71,14 @@ export class TaskRepository implements ITaskRepository {
   async delete(id: string): Promise<void> {
     await httpClient.delete(`${this.endpoint}/${id}`);
   }
+
+  async assign(id: string, data: { assigneeId: string }): Promise<Task> {
+    const response = await httpClient.patch<Task>(`${this.endpoint}/${id}/assign`, data);
+    
+    return {
+      ...response.data,
+      createdAt: new Date(response.data.createdAt),
+      updatedAt: new Date(response.data.updatedAt),
+    };
+  }
 }
