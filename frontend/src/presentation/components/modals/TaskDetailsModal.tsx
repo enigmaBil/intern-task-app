@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from '@/presentation/components/ui/dialog';
 import { Calendar, User, Clock } from 'lucide-react';
+import { useUsers } from '@/presentation/hooks';
 
 interface TaskDetailsModalProps {
   task: Task;
@@ -21,6 +22,9 @@ interface TaskDetailsModalProps {
  * Modal pour afficher les détails d'une tâche
  */
 export function TaskDetailsModal({ task, open, onOpenChange }: TaskDetailsModalProps) {
+  const { users } = useUsers();
+  const assignedUser = task.assigneeId ? users.find(u => u.id === task.assigneeId) : null;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
@@ -77,10 +81,10 @@ export function TaskDetailsModal({ task, open, onOpenChange }: TaskDetailsModalP
                 <span>Modifiée le {new Date(task.updatedAt).toLocaleDateString('fr-FR')}</span>
               </div>
             )}
-            {task.assigneeId && (
+            {assignedUser && (
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <User className="h-3 w-3" />
-                <span>Assignée à: {task.assigneeId}</span>
+                <span>Assignée à: {assignedUser.firstName} {assignedUser.lastName}</span>
               </div>
             )}
           </div>

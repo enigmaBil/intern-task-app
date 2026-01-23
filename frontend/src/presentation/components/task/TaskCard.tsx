@@ -56,28 +56,34 @@ export function TaskCard({ task, onTaskUpdated }: TaskCardProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setEditOpen(true)}>
-              <Pencil className="mr-2 h-4 w-4" />
-              Mettre à jour
-            </DropdownMenuItem>
             {isAdmin && (
-              <DropdownMenuItem onClick={() => setAssignOpen(true)}>
-                <UserCheck className="mr-2 h-4 w-4" />
-                Assigner
-              </DropdownMenuItem>
+              <>
+                <DropdownMenuItem onClick={() => setEditOpen(true)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Mettre à jour
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setAssignOpen(true)}>
+                  <UserCheck className="mr-2 h-4 w-4" />
+                  Assigner
+                </DropdownMenuItem>
+              </>
             )}
             <DropdownMenuItem onClick={() => setDetailsOpen(true)}>
               <Eye className="mr-2 h-4 w-4" />
               Afficher détails
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => setDeleteOpen(true)}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Supprimer
-            </DropdownMenuItem>
+            {isAdmin && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => setDeleteOpen(true)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Supprimer
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
