@@ -105,7 +105,6 @@ export function AddTaskModal({ onTaskAdded }: AddTaskModalProps) {
             <Input
               label="Titre"
               placeholder="Titre de la tâche"
-              required
               error={errors.title?.message}
               {...register('title')}
             />
@@ -113,7 +112,6 @@ export function AddTaskModal({ onTaskAdded }: AddTaskModalProps) {
             <Textarea
               label="Description"
               placeholder="Description détaillée"
-              required
               error={errors.description?.message}
               {...register('description')}
             />

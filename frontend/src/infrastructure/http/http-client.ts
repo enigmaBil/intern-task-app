@@ -68,6 +68,15 @@ class HttpClient {
         await this.handleErrorResponse(response);
       }
 
+      // Pour les réponses 204 No Content, retourner null comme data
+      if (response.status === 204) {
+        return {
+          data: null as T,
+          status: response.status,
+          headers: response.headers,
+        };
+      }
+
       const data = await response.json();
 
       return {
