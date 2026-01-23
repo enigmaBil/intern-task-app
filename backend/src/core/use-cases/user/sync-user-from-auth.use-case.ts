@@ -62,51 +62,14 @@ export class SyncUserFromAuthUseCase {
       role,
     };
 
-    // Vérifier si l'utilisateur existe déjà
-    const existingUser = await this.userInteractor.findById(normalizedData.id);
-
-    if (existingUser) {
-      // Mise à jour : vérifier si les données ont changé
-      const hasChanged = 
-        existingUser.email !== normalizedData.email ||
-        existingUser.firstName !== normalizedData.firstName ||
-        existingUser.lastName !== normalizedData.lastName ||
-        existingUser.role !== normalizedData.role;
-
-      if (hasChanged) {
-        // Reconstituer l'utilisateur avec les nouvelles données
-        const updatedUser = User.reconstitute({
-          id: existingUser.id,
-          email: normalizedData.email,
-          firstName: normalizedData.firstName,
-          lastName: normalizedData.lastName,
-          role: normalizedData.role,
-          createdAt: existingUser.createdAt,
-          updatedAt: new Date(),
-        });
-
-        // Sauvegarder les modifications
-        return await this.userInteractor.save(updatedUser);
-      }
-
-      // Aucun changement, retourner l'utilisateur existant
-      return existingUser;
-    } else {
-      // Création : créer un nouvel utilisateur
-      const now = new Date();
-      const newUser = User.reconstitute({
-        id: normalizedData.id,
-        email: normalizedData.email,
-        firstName: normalizedData.firstName,
-        lastName: normalizedData.lastName,
-        role: normalizedData.role,
-        createdAt: now,
-        updatedAt: now,
-      });
-
-      // Sauvegarder le nouvel utilisateur
-      return await this.userInteractor.save(newUser);
-    }
+    // Utiliser upsertFromAuth qui gère correctement les cas de création/mise à jour par email
+    return await this.userInteractor.upsertFromAuth({
+      keycloakId: normalizedData.id,
+      email: normalizedData.email,
+      firstName: normalizedData.firstName,
+      lastName: normalizedData.lastName,
+      role: normalizedData.role,
+    });
   }
 
   /**

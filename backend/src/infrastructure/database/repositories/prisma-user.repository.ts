@@ -149,6 +149,7 @@ export class PrismaUserRepository implements IUserInteractor {
     const prismaUser = await this.prisma.user.upsert({
       where: { email: userData.email },
       create: {
+        id: userData.keycloakId, // Utiliser le keycloakId comme ID
         email: userData.email,
         firstName: userData.firstName,
         lastName: userData.lastName,

@@ -56,17 +56,16 @@ export class UserController {
 
   /**
    * Récupère tous les utilisateurs
-   * @requires ADMIN
+   * Accessible à tous les utilisateurs authentifiés pour faciliter l'assignation des tâches
    * 
    * @returns Liste de tous les utilisateurs
    */
   @Get()
-  @Roles('ADMIN')
   @HttpCode(HttpStatus.OK)
   @Throttle({ default: { limit: 100, ttl: 60000 } })
   @ApiOperation({
     summary: 'Récupère tous les utilisateurs',
-    description: 'Retourne la liste complète des utilisateurs enregistrés dans le système',
+    description: 'Retourne la liste complète des utilisateurs enregistrés dans le système. Accessible à tous les utilisateurs authentifiés.',
   })
   @ApiResponse({
     status: HttpStatus.OK,
