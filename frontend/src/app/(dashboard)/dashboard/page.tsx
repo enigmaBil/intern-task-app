@@ -8,8 +8,8 @@ export default function DashboardPage() {
 
       <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <StatCard title="Tâches" value="0" />
-        <StatCard title="Utilisateurs" value="0" />
         <StatCard title="Notes Scrum" value="0" />
+        <StatCard title="Utilisateurs" value="0" />
       </div>
     </div>
   );

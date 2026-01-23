@@ -11,9 +11,9 @@ export default function UsersPage() {
     <div>
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Utilisateurs</h1>
-        <button className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
+        {/* <button className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
           Nouvel utilisateur
-        </button>
+        </button> */}
       </div>
       <p className="mt-4 text-gray-600">
         Gestion des membres de l'équipe

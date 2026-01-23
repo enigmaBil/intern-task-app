@@ -23,11 +23,11 @@ export default function DashboardLayout({
           <NavLink href="/tasks" icon={<ListTodo size={20} />}>
             Tâches
           </NavLink>
-          <NavLink href="/users" icon={<Users size={20} />}>
-            Utilisateurs
-          </NavLink>
           <NavLink href="/scrum-notes" icon={<FileText size={20} />}>
             Notes Scrum
+          </NavLink>
+          <NavLink href="/users" icon={<Users size={20} />}>
+            Utilisateurs
           </NavLink>
         </nav>
       </aside>
