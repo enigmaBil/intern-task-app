@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/presentation/hooks';
 import { LoadingSpinner } from '@/presentation/components/shared';
 import Link from 'next/link';
@@ -13,19 +13,18 @@ import Link from 'next/link';
  */
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login, isAuthenticated } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // URLs Keycloak pour inscription et récupération de mot de passe
+  // URLs pour Google OAuth
   const keycloakBaseUrl = process.env.NEXT_PUBLIC_KEYCLOAK_URL || 'http://localhost:8080';
   const keycloakRealm = process.env.NEXT_PUBLIC_KEYCLOAK_REALM || 'Mini-Jira-Realm';
   const clientId = process.env.NEXT_PUBLIC_CLIENT_ID || 'mini-jira-frontend';
-  
-  const registerUrl = `${keycloakBaseUrl}/realms/${keycloakRealm}/protocol/openid-connect/registrations?client_id=${clientId}&response_type=code&redirect_uri=${encodeURIComponent(window.location.origin)}/api/auth/callback/keycloak`;
-  const forgotPasswordUrl = `${keycloakBaseUrl}/realms/${keycloakRealm}/login-actions/reset-credentials?client_id=${clientId}`;
 
   // Si déjà authentifié, rediriger vers dashboard
   useEffect(() => {
@@ -33,6 +32,13 @@ export default function LoginPage() {
       router.push('/dashboard');
     }
   }, [isAuthenticated, router]);
+
+  // Afficher message de succès après inscription
+  useEffect(() => {
+    if (searchParams.get('registered') === 'true') {
+      setSuccessMessage('Compte créé avec succès ! Vous pouvez maintenant vous connecter.');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,6 +70,12 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          {successMessage && (
+            <div className="rounded-lg bg-green-50 p-3 text-sm text-green-800">
+              {successMessage}
+            </div>
+          )}
+
           {error && (
             <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800">
               {error}
@@ -92,12 +104,12 @@ export default function LoginPage() {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   Mot de passe
                 </label>
-                <a
-                  href={forgotPasswordUrl}
+                <Link
+                  href="/forgot-password"
                   className="text-sm text-blue-600 hover:text-blue-700 hover:underline"
                 >
                   Mot de passe oublié ?
-                </a>
+                </Link>
               </div>
               <input
                 id="password"
@@ -168,12 +180,12 @@ export default function LoginPage() {
           {/* Lien vers inscription */}
           <div className="text-center text-sm text-gray-600">
             Pas encore de compte ?{' '}
-            <a
-              href={registerUrl}
+            <Link
+              href="/register"
               className="font-medium text-blue-600 hover:text-blue-700 hover:underline"
             >
               S'inscrire
-            </a>
+            </Link>
           </div>
         </form>
       </div>
