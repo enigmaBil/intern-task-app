@@ -78,4 +78,19 @@ export class UserRepository implements IUserRepository {
   async delete(id: string): Promise<void> {
     await httpClient.delete(`${this.endpoint}/${id}`);
   }
+
+  async deactivate(id: string): Promise<void> {
+    await httpClient.post(`${this.endpoint}/${id}/deactivate`);
+  }
+
+  async activate(id: string): Promise<void> {
+    await httpClient.post(`${this.endpoint}/${id}/activate`);
+  }
+
+  async sync(): Promise<{ total: number; active: number; deactivated: number }> {
+    const response = await httpClient.post<{ total: number; active: number; deactivated: number }>(
+      `${this.endpoint}/sync`
+    );
+    return response.data;
+  }
 }

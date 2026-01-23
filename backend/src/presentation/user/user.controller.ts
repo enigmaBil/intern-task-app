@@ -1,11 +1,13 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
   ParseUUIDPipe,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -22,6 +24,9 @@ import { UserRole } from '@/core/domain/enums/user-role.enum';
 import { GetAllUsersUseCase } from '@/core/use-cases/user/get-all-users.use-case';
 import { GetUserByIdUseCase } from '@/core/use-cases/user/get-user-by-id.use-case';
 import { GetUsersByRoleUseCase } from '@/core/use-cases/user/get-users-by-role.use-case';
+import { DeactivateUserUseCase } from '@/core/use-cases/user/deactivate-user.use-case';
+import { ActivateUserUseCase } from '@/core/use-cases/user/activate-user.use-case';
+import { SyncUsersWithKeycloakUseCase } from '@/core/use-cases/user/sync-users-with-keycloak.use-case';
 import { RolesGuard } from '@/infrastructure/auth/guards/roles.guard';
 import { Roles } from '@/infrastructure/auth/decorators/roles.decorator';
 import { UserResponseDto } from './dto';
@@ -44,6 +49,9 @@ export class UserController {
     private readonly getAllUsersUseCase: GetAllUsersUseCase,
     private readonly getUserByIdUseCase: GetUserByIdUseCase,
     private readonly getUsersByRoleUseCase: GetUsersByRoleUseCase,
+    private readonly deactivateUserUseCase: DeactivateUserUseCase,
+    private readonly activateUserUseCase: ActivateUserUseCase,
+    private readonly syncUsersWithKeycloakUseCase: SyncUsersWithKeycloakUseCase,
   ) {}
 
   /**
@@ -149,5 +157,89 @@ export class UserController {
   ): Promise<UserResponseDto[]> {
     const users = await this.getUsersByRoleUseCase.execute(role);
     return UserPresentationMapper.toDtoList(users);
+  }
+
+  /**
+   * Désactive un utilisateur
+   * @requires ADMIN
+   */
+  @Post(':id/deactivate')
+  @Roles('ADMIN')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @ApiOperation({
+    summary: 'Désactive un utilisateur',
+    description: 'Désactive un utilisateur en passant isActive à false',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID de l\'utilisateur',
+    type: String,
+    format: 'uuid',
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Utilisateur désactivé avec succès',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Utilisateur non trouvé',
+  })
+  async deactivateUser(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<void> {
+    await this.deactivateUserUseCase.execute(id);
+  }
+
+  /**
+   * Active un utilisateur
+   * @requires ADMIN
+   */
+  @Post(':id/activate')
+  @Roles('ADMIN')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @ApiOperation({
+    summary: 'Active un utilisateur',
+    description: 'Active un utilisateur en passant isActive à true',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID de l\'utilisateur',
+    type: String,
+    format: 'uuid',
+  })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Utilisateur activé avec succès',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Utilisateur non trouvé',
+  })
+  async activateUser(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<void> {
+    await this.activateUserUseCase.execute(id);
+  }
+
+  /**
+   * Synchronise les utilisateurs avec Keycloak
+   * @requires ADMIN
+   */
+  @Post('sync')
+  @Roles('ADMIN')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
+  @ApiOperation({
+    summary: 'Synchronise les utilisateurs avec Keycloak',
+    description: 'Retourne les statistiques des utilisateurs',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Synchronisation effectuée',
+  })
+  async syncUsers(): Promise<{ total: number; active: number; deactivated: number }> {
+    return await this.syncUsersWithKeycloakUseCase.execute();
   }
 }

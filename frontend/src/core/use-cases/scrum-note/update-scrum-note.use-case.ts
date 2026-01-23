@@ -1,5 +1,5 @@
-import { ScrumNote, UpdateScrumNoteDto } from '@/core/domain/repositories/scrum-note.repository.interface';
-import { IScrumNoteRepository } from '@/core/domain/repositories/scrum-note.repository.interface';
+import { ScrumNote } from '@/core/domain/entities';
+import { UpdateScrumNoteDto, IScrumNoteRepository } from '@/core/domain/repositories/scrum-note.repository.interface';
 
 /**
  * Use Case: Update Scrum Note

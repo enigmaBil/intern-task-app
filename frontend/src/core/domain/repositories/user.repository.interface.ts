@@ -22,4 +22,7 @@ export interface IUserRepository {
   create(data: CreateUserDto): Promise<User>;
   update(id: string, data: UpdateUserDto): Promise<User>;
   delete(id: string): Promise<void>;
+  deactivate(id: string): Promise<void>;
+  activate(id: string): Promise<void>;
+  sync(): Promise<{ total: number; active: number; deactivated: number }>;
 }

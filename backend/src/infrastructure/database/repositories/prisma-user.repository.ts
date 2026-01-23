@@ -48,6 +48,9 @@ export class PrismaUserRepository implements IUserInteractor {
    */
   async findAll(): Promise<User[]> {
     const prismaUsers = await this.prisma.user.findMany({
+      where: {
+        isActive: true, // Ne retourner que les utilisateurs actifs
+      },
       orderBy: {
         lastName: 'asc',
       },
@@ -131,5 +134,62 @@ export class PrismaUserRepository implements IUserInteractor {
 
       return UserPersistenceMapper.toDomain(created);
     }
+  }
+
+  /**
+   * Crée ou met à jour un utilisateur depuis Keycloak
+   */
+  async upsertFromAuth(userData: {
+    keycloakId: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: UserRole;
+  }): Promise<User> {
+    const prismaUser = await this.prisma.user.upsert({
+      where: { email: userData.email },
+      create: {
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        role: userData.role,
+        isActive: true,
+      },
+      update: {
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        role: userData.role,
+        isActive: true, // Réactiver l'utilisateur s'il s'était connecté après désactivation
+        updatedAt: new Date(),
+      },
+    });
+
+    return UserPersistenceMapper.toDomain(prismaUser);
+  }
+
+  /**
+   * Désactive un utilisateur
+   */
+  async deactivateUser(id: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id },
+      data: {
+        isActive: false,
+        updatedAt: new Date(),
+      },
+    });
+  }
+
+  /**
+   * Active un utilisateur
+   */
+  async activateUser(id: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id },
+      data: {
+        isActive: true,
+        updatedAt: new Date(),
+      },
+    });
   }
 }

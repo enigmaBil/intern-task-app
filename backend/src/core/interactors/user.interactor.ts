@@ -62,4 +62,32 @@ export interface IUserInteractor {
    * @returns L'utilisateur sauvegardé
    */
   save(user: User): Promise<User>;
+
+  /**
+   * Crée ou met à jour un utilisateur depuis Keycloak
+   * 
+   * @param userData - Données de l'utilisateur
+   * @returns L'utilisateur créé ou mis à jour
+   */
+  upsertFromAuth(userData: {
+    keycloakId: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    role: UserRole;
+  }): Promise<User>;
+
+  /**
+   * Désactive un utilisateur
+   * 
+   * @param id - ID de l'utilisateur
+   */
+  deactivateUser(id: string): Promise<void>;
+
+  /**
+   * Active un utilisateur
+   * 
+   * @param id - ID de l'utilisateur
+   */
+  activateUser(id: string): Promise<void>;
 }

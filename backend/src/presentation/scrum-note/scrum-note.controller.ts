@@ -75,15 +75,20 @@ export class ScrumNoteController {
   @Throttle({ default: { limit: 100, ttl: 60000 } })
   @ApiOperation({
     summary: 'Récupère toutes les notes de scrum',
-    description: 'Retourne toutes les notes de scrum sans filtre',
+    description: 'ADMIN voit toutes les notes, INTERN voit uniquement ses propres notes',
   })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Notes récupérées avec succès',
     type: [ScrumNoteResponseDto],
   })
-  async getAllScrumNotes(): Promise<ScrumNoteResponseDto[]> {
-    const notes = await this.getAllScrumNotesUseCase.execute();
+  async getAllScrumNotes(
+    @CurrentUser() user: User,
+  ): Promise<ScrumNoteResponseDto[]> {
+    const notes = await this.getAllScrumNotesUseCase.execute({
+      userId: user.id,
+      userRole: user.role,
+    });
     return ScrumNotePresentationMapper.toDtoList(notes);
   }
 

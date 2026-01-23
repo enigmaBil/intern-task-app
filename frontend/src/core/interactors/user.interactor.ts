@@ -3,6 +3,9 @@ import {
   CreateUserUseCase,
   GetAllUsersUseCase,
   GetUserByIdUseCase,
+  DeactivateUserUseCase,
+  ActivateUserUseCase,
+  SyncUsersUseCase,
 } from '../use-cases/user';
 
 export class UserInteractor {
@@ -12,6 +15,9 @@ export class UserInteractor {
   public readonly createUser: CreateUserUseCase;
   public readonly getAllUsers: GetAllUsersUseCase;
   public readonly getUserById: GetUserByIdUseCase;
+  public readonly deactivateUser: DeactivateUserUseCase;
+  public readonly activateUser: ActivateUserUseCase;
+  public readonly syncUsers: SyncUsersUseCase;
 
   constructor() {
     this.userRepository = new UserRepository();
@@ -20,6 +26,9 @@ export class UserInteractor {
     this.createUser = new CreateUserUseCase(this.userRepository);
     this.getAllUsers = new GetAllUsersUseCase(this.userRepository);
     this.getUserById = new GetUserByIdUseCase(this.userRepository);
+    this.deactivateUser = new DeactivateUserUseCase(this.userRepository);
+    this.activateUser = new ActivateUserUseCase(this.userRepository);
+    this.syncUsers = new SyncUsersUseCase(this.userRepository);
   }
 }
 
