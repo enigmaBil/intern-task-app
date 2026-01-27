@@ -21,7 +21,7 @@ import { ScrumNoteModule } from './presentation/scrum-note/scrum-note.module';
       {
         name: 'default',
         ttl: 60000, // Time to live : 60 secondes (fenêtre de temps)
-        limit: 100, // Limite : 100 requêtes par fenêtre de 60 secondes
+        limit: 10000, // Limite : 100 requêtes par fenêtre de 60 secondes
       },
       {
         name: 'strict',

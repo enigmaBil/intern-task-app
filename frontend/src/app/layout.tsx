@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { AuthProvider } from "@/presentation/components/shared";
+import { AuthProvider, ReactQueryProvider } from "@/presentation/components/shared";
 import { Toaster } from "@/presentation/components/ui/sonner";
 import "./globals.css";
 
@@ -22,7 +22,9 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <AuthProvider>{children}</AuthProvider>
+        <ReactQueryProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </ReactQueryProvider>
         <Toaster richColors position="top-right" />
       </body>
     </html>

@@ -1,39 +1,36 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { userInteractor } from '@/core/interactors';
-import { User } from '@/core/domain/entities';
-import { DomainException } from '@/core/domain/exceptions';
 
+/**
+ * Hook React Query pour gérer les utilisateurs avec cache intelligent
+ * 
+ * Avantages de React Query:
+ * - Cache automatique: évite les requêtes duplicates
+ * - Partage de données: tous les composants partagent le même cache
+ * - Refetch intelligent: mise à jour en arrière-plan
+ * - Optimisation performance: moins de requêtes réseau
+ */
 export function useUsers() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchUsers = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const data = await userInteractor.getAllUsers.execute();
-      setUsers(data);
-    } catch (err) {
-      const message = err instanceof DomainException
-        ? err.message
-        : 'Erreur lors du chargement des utilisateurs';
-      setError(message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  const {
+    data: users = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['users'], // Clé unique pour identifier cette requête
+    queryFn: async () => {
+      return await userInteractor.getAllUsers.execute();
+    },
+    staleTime: 5 * 60 * 1000, // Données fraîches pendant 5 minutes
+    gcTime: 10 * 60 * 1000, // Cache gardé 10 minutes
+  });
 
   return {
     users,
     isLoading,
-    error,
-    refetch: fetchUsers,
+    error: error ? 'Erreur lors du chargement des utilisateurs' : null,
+    refetch,
   };
 }
