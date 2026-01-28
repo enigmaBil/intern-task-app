@@ -13,7 +13,8 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Obtenir un token d'administration Keycloak
-    const keycloakUrl = process.env.KEYCLOAK_ISSUER?.replace('/realms/Mini-Jira-Realm', '') || 'http://keycloak:8080';
+    // Utiliser l'URL interne Docker pour les appels serveur
+    const keycloakUrl = process.env.BACKEND_KEYCLOAK_ISSUER?.replace('/realms/Mini-Jira-Realm', '') || 'http://keycloak:8080';
     const realm = 'Mini-Jira-Realm';
     
     console.log('[Register] Keycloak config:', {
