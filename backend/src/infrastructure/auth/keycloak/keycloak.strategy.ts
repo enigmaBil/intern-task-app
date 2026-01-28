@@ -42,8 +42,13 @@ export class KeycloakStrategy extends PassportStrategy(Strategy, 'keycloak'){
   constructor(private readonly authService: AuthService) {
     const config = keycloakConfig();
     
+    // Accepter à la fois l'URL interne (keycloak) et externe (localhost)
+    const internalIssuer = config.keycloak.issuer; // http://keycloak:8080/realms/...
+    const externalIssuer = config.keycloak.issuer.replace('keycloak:8080', 'localhost:8080');
+    
     console.log('🔍 Keycloak Strategy Config:', {
       issuer: config.keycloak.issuer,
+      externalIssuer: externalIssuer,
       jwksUri: config.keycloak.jwksUri,
       clientId: config.keycloak.clientId,
     });
@@ -53,7 +58,8 @@ export class KeycloakStrategy extends PassportStrategy(Strategy, 'keycloak'){
       ignoreExpiration: false,
       // Pas de vérification d'audience car Keycloak utilise "account" par défaut
       // On vérifie plutôt le azp (authorized party) qui contient le client_id
-      issuer: config.keycloak.issuer,
+      // Ne pas utiliser issuer ici, on le validera manuellement
+      // issuer: config.keycloak.issuer,
       algorithms: ['RS256'],
       secretOrKeyProvider: passportJwtSecret({
         cache: true,
@@ -81,6 +87,18 @@ export class KeycloakStrategy extends PassportStrategy(Strategy, 'keycloak'){
     
     if (!payload.sub) {
       throw new UnauthorizedException('Token JWT invalide');
+    }
+
+    // Valider manuellement l'issuer (accepter localhost ET keycloak)
+    const config = keycloakConfig();
+    const expectedIssuers = [
+      config.keycloak.issuer, // http://keycloak:8080/realms/...
+      config.keycloak.issuer.replace('keycloak:8080', 'localhost:8080'), // http://localhost:8080/realms/...
+    ];
+    
+    if (!expectedIssuers.includes((payload as any).iss)) {
+      this.logger.error(`Invalid issuer: ${(payload as any).iss}, expected one of: ${expectedIssuers.join(', ')}`);
+      throw new UnauthorizedException('Invalid token issuer');
     }
 
     // Synchroniser l'utilisateur avec la base de données

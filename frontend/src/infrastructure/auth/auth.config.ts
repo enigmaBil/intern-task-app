@@ -88,6 +88,7 @@ export const authOptions: NextAuthOptions = {
             firstName: payload.given_name || "",
             lastName: payload.family_name || "",
             role: role,
+            roles: allRoles, // Tous les rôles pour sync backend
             accessToken: tokens.access_token,
             refreshToken: tokens.refresh_token,
             idToken: tokens.id_token,
@@ -168,6 +169,7 @@ export const authOptions: NextAuthOptions = {
         token.firstName = (user as any).firstName;
         token.lastName = (user as any).lastName;
         token.role = (user as any).role;
+        token.roles = (user as any).roles || []; // Tous les rôles pour sync backend
         token.accessToken = (user as any).accessToken;
         token.refreshToken = (user as any).refreshToken;
         token.expiresAt = (user as any).expiresAt;
@@ -207,12 +209,16 @@ export const authOptions: NextAuthOptions = {
           (profile as any).resource_access?.["mini-jira-frontend"]?.roles || [];
         const allRoles = [...realmRoles, ...clientRoles];
 
+        // Stocker le rôle principal ET tous les rôles pour la synchronisation
         token.role = allRoles.includes("ADMIN") ? "ADMIN" : "INTERN";
+        token.roles = allRoles; // Tous les rôles pour sync backend
 
-        console.log(
-          "[Auth] Google login completed, token expires at:",
-          new Date((token.expiresAt as number) * 1000),
-        );
+        console.log("[Auth] Google login completed:", {
+          expiresAt: new Date((token.expiresAt as number) * 1000),
+          role: token.role,
+          roles: token.roles,
+          rolesCount: allRoles.length,
+        });
 
         // Retourner directement le token lors de la première connexion
         return token;
@@ -254,6 +260,8 @@ export const authOptions: NextAuthOptions = {
         hasToken: !!token,
         hasAccessToken: !!token.accessToken,
         tokenId: token.id,
+        role: token.role,
+        roles: token.roles,
         error: token.error,
       });
       
@@ -266,6 +274,7 @@ export const authOptions: NextAuthOptions = {
           firstName: token.firstName as string,
           lastName: token.lastName as string,
           role: token.role as string,
+          roles: (token.roles as string[]) || [], // Exposer tous les rôles
           image: null,
         },
         accessToken: token.accessToken as string,

@@ -27,9 +27,11 @@ import { GetUsersByRoleUseCase } from '@/core/use-cases/user/get-users-by-role.u
 import { DeactivateUserUseCase } from '@/core/use-cases/user/deactivate-user.use-case';
 import { ActivateUserUseCase } from '@/core/use-cases/user/activate-user.use-case';
 import { SyncUsersWithKeycloakUseCase } from '@/core/use-cases/user/sync-users-with-keycloak.use-case';
+import { SyncUserFromAuthUseCase } from '@/core/use-cases/user/sync-user-from-auth.use-case';
 import { RolesGuard } from '@/infrastructure/auth/guards/roles.guard';
 import { Roles } from '@/infrastructure/auth/decorators/roles.decorator';
-import { UserResponseDto } from './dto';
+import { Public } from '@/infrastructure/auth/decorators/public.decorator';
+import { UserResponseDto, SyncUserDto } from './dto';
 import { UserPresentationMapper } from './mappers';
 import { JwtAuthGuard, KeycloakAuthGuard } from '@/infrastructure/auth/guards';
 
@@ -52,6 +54,7 @@ export class UserController {
     private readonly deactivateUserUseCase: DeactivateUserUseCase,
     private readonly activateUserUseCase: ActivateUserUseCase,
     private readonly syncUsersWithKeycloakUseCase: SyncUsersWithKeycloakUseCase,
+    private readonly syncUserFromAuthUseCase: SyncUserFromAuthUseCase,
   ) {}
 
   /**
@@ -240,5 +243,35 @@ export class UserController {
   })
   async syncUsers(): Promise<{ total: number; active: number; deactivated: number }> {
     return await this.syncUsersWithKeycloakUseCase.execute();
+  }
+
+  /**
+   * Synchronise un utilisateur individuel après authentification OAuth
+   * Cet endpoint est appelé par le frontend après chaque connexion Google OAuth
+   * pour créer ou mettre à jour l'utilisateur dans la base de données
+   * Endpoint public car l'utilisateur n'est pas encore synchronisé au moment de l'appel
+   */
+  @Post('sync-me')
+  @Public() // Endpoint public pour permettre la synchronisation initiale
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @ApiOperation({
+    summary: 'Synchronise l\'utilisateur courant',
+    description: 'Crée ou met à jour l\'utilisateur dans la base de données après authentification OAuth',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Utilisateur synchronisé avec succès',
+    type: UserResponseDto,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Données invalides',
+  })
+  async syncCurrentUser(
+    @Body() syncUserDto: SyncUserDto,
+  ): Promise<UserResponseDto> {
+    const user = await this.syncUserFromAuthUseCase.execute(syncUserDto);
+    return UserPresentationMapper.toDto(user);
   }
 }

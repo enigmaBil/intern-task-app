@@ -5,6 +5,7 @@ import { GetUsersByRoleUseCase } from '@/core/use-cases/user/get-users-by-role.u
 import { DeactivateUserUseCase } from '@/core/use-cases/user/deactivate-user.use-case';
 import { ActivateUserUseCase } from '@/core/use-cases/user/activate-user.use-case';
 import { SyncUsersWithKeycloakUseCase } from '@/core/use-cases/user/sync-users-with-keycloak.use-case';
+import { SyncUserFromAuthUseCase } from '@/core/use-cases/user/sync-user-from-auth.use-case';
 import { DatabaseModule } from '@/infrastructure/database/database.module';
 import { UserController } from './user.controller';
 
@@ -47,6 +48,11 @@ import { UserController } from './user.controller';
     {
       provide: SyncUsersWithKeycloakUseCase,
       useFactory: (userInteractor) => new SyncUsersWithKeycloakUseCase(userInteractor),
+      inject: ['IUserInteractor'],
+    },
+    {
+      provide: SyncUserFromAuthUseCase,
+      useFactory: (userInteractor) => new SyncUserFromAuthUseCase(userInteractor),
       inject: ['IUserInteractor'],
     },
   ],

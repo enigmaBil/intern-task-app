@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { LayoutDashboard, ListTodo, Users, FileText } from 'lucide-react';
 import { UserDropdown } from '@/presentation/components/layout/UserDropdown';
 import { useSession } from 'next-auth/react';
+import { useUserSync } from '@/presentation/hooks/useUserSync';
 
 export default function DashboardLayout({
   children,
@@ -12,6 +13,9 @@ export default function DashboardLayout({
 }) {
   const { data: session } = useSession();
   const userRole = session?.user?.role;
+
+  // Synchroniser automatiquement l'utilisateur avec le backend
+  useUserSync();
 
   return (
     <div className="flex min-h-screen">
