@@ -107,15 +107,15 @@ export class SyncUserFromAuthUseCase {
    * Extrait le rôle utilisateur à partir des rôles Keycloak
    * 
    * Logique :
-   * - Si l'utilisateur a le rôle "admin" dans Keycloak -> ADMIN
+   * - Si l'utilisateur a le rôle "ADMIN" ou "admin" dans Keycloak -> ADMIN
    * - Sinon -> INTERN (par défaut)
    */
   private extractUserRole(keycloakRoles: string[]): UserRole {
-    // Normaliser les rôles (lowercase pour comparaison)
-    const normalizedRoles = keycloakRoles.map(role => role.toLowerCase());
+    // Normaliser les rôles (uppercase pour comparaison car Keycloak envoie généralement en majuscules)
+    const normalizedRoles = keycloakRoles.map(role => role.toUpperCase());
 
     // Vérifier si l'utilisateur est admin
-    if (normalizedRoles.includes('admin') || normalizedRoles.includes('administrator')) {
+    if (normalizedRoles.includes('ADMIN') || normalizedRoles.includes('ADMINISTRATOR')) {
       return UserRole.ADMIN;
     }
 

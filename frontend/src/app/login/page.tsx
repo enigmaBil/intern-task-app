@@ -5,11 +5,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/presentation/hooks';
 import { LoadingSpinner } from '@/presentation/components/shared';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
 
 /**
  * Page de connexion avec email/password
  * Keycloak valide les credentials en arrière-plan
- * Offre des options pour l'inscription, récupération de mot de passe et connexion Google
  */
 export default function LoginPage() {
   const router = useRouter();
@@ -56,9 +56,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = () => {
-    // Rediriger vers la page de connexion Keycloak avec Google comme IDP
-    const googleLoginUrl = `${keycloakBaseUrl}/realms/${keycloakRealm}/protocol/openid-connect/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(window.location.origin)}/api/auth/callback/keycloak&response_type=code&scope=openid%20email%20profile&kc_idp_hint=google`;
-    window.location.href = googleLoginUrl;
+    signIn('keycloak-google', { callbackUrl: '/dashboard' });
   };
 
   return (

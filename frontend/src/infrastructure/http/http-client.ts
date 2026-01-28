@@ -47,6 +47,7 @@ class HttpClient {
 
       // Ajouter le token d'authentification Keycloak depuis la session NextAuth
       const token = await this.getAuthToken();
+      console.log('[HttpClient] Auth token:', token ? `${token.substring(0, 20)}...` : 'null');
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
@@ -137,8 +138,14 @@ class HttpClient {
 
     try {
       const session = await getSession();
+      console.log('[HttpClient] Session:', {
+        hasSession: !!session,
+        hasAccessToken: !!(session as any)?.accessToken,
+        user: (session as any)?.user?.email,
+      });
       return (session as any)?.accessToken || null;
-    } catch {
+    } catch (error) {
+      console.error('[HttpClient] Error getting session:', error);
       return null;
     }
   }
