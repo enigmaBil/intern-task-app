@@ -128,7 +128,7 @@ export class UserController {
    * Récupère les utilisateurs par rôle
    * @requires ADMIN
    * 
-   * @param role - Rôle à filtrer (ADMIN, PRODUCT_OWNER, SCRUM_MASTER, DEVELOPER, INTERN)
+   * @param role - Rôle à filtrer (ADMIN, INTERN)
    * @returns Liste des utilisateurs ayant ce rôle
    */
   @Get('by-role/:role')

@@ -79,7 +79,7 @@ export class TaskController {
   @Post()
   @Roles('tasks:create', 'ADMIN')
   @HttpCode(HttpStatus.CREATED)
-  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @ApiOperation({
     summary: 'Crée une nouvelle tâche',
     description: 'Crée une nouvelle tâche et l\'associe au créateur authentifié',
@@ -118,7 +118,7 @@ export class TaskController {
   @Get()
   @Roles('tasks:view', 'ADMIN')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @ApiOperation({
     summary: 'Récupère toutes les tâches',
     description: 'Retourne la liste des tâches selon le rôle: ADMIN voit tout, INTERN voit uniquement ses tâches assignées',
@@ -143,7 +143,7 @@ export class TaskController {
   @Get(':id')
   @Roles('tasks:view', 'ADMIN')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 200, ttl: 60000 } })
+  @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @ApiOperation({
     summary: 'Récupère une tâche par ID',
     description: 'Retourne les détails d\'une tâche spécifique',
@@ -177,7 +177,7 @@ export class TaskController {
   @Patch(':id')
   @Roles('tasks:update', 'ADMIN')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 50, ttl: 60000 } })
+  @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @ApiOperation({
     summary: 'Met à jour une tâche',
     description: 'Met à jour les champs spécifiés d\'une tâche (PATCH partiel)',
@@ -263,7 +263,7 @@ export class TaskController {
   @Patch(':id/assign')
   @Roles('tasks:assign', 'ADMIN')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 50, ttl: 60000 } })
+  @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @ApiOperation({
     summary: 'Assigne une tâche à un utilisateur',
     description: 'Permet à un admin d\'assigner une tâche à un utilisateur spécifique',
@@ -309,7 +309,7 @@ export class TaskController {
   @Patch(':id/status')
   @Roles('tasks:update_status', 'ADMIN')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 50, ttl: 60000 } })
+  @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @ApiOperation({
     summary: 'Change le statut d\'une tâche',
     description: 'Met à jour le statut d\'une tâche (assigné ou admin)',
@@ -355,7 +355,7 @@ export class TaskController {
   @Get('by-status/:status')
   @Roles('tasks:view', 'ADMIN')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @ApiOperation({
     summary: 'Récupère les tâches par statut',
     description: 'Filtre les tâches selon leur statut',
@@ -385,7 +385,7 @@ export class TaskController {
   @Get('by-assignee/:assigneeId')
   @Roles('tasks:view', 'ADMIN')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @ApiOperation({
     summary: 'Récupère les tâches d\'un utilisateur',
     description: 'Filtre les tâches assignées à un utilisateur spécifique',

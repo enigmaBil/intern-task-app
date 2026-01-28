@@ -99,7 +99,7 @@ export class ScrumNoteController {
   @Post()
   @Roles('scrum_note:create', 'ADMIN')
   @HttpCode(HttpStatus.CREATED)
-  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @ApiOperation({
     summary: 'Crée une nouvelle note de scrum',
     description: 'Crée une note quotidienne de scrum pour l\'utilisateur authentifié. Une seule note par utilisateur et par jour.',
@@ -139,7 +139,7 @@ export class ScrumNoteController {
   @Get('today')
   @Roles('scrum_note:view', 'ADMIN')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @ApiOperation({
     summary: 'Récupère les notes du jour',
     description: 'Retourne toutes les notes de scrum créées aujourd\'hui',
@@ -161,7 +161,7 @@ export class ScrumNoteController {
   @Get('user/:userId')
   @Roles('scrum_note:view', 'ADMIN')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 100, ttl: 60000 } })
+  @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @ApiOperation({
     summary: 'Récupère les notes d\'un utilisateur',
     description: 'Retourne les notes de scrum d\'un utilisateur sur une période donnée',
@@ -215,7 +215,7 @@ export class ScrumNoteController {
   @Patch(':id')
   @Roles('scrum_note:update', 'ADMIN')
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 50, ttl: 60000 } })
+  @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @ApiOperation({
     summary: 'Met à jour une note de scrum',
     description: 'Met à jour les champs spécifiés d\'une note (PATCH partiel). Seul le propriétaire ou un admin peut modifier.',
@@ -263,7 +263,7 @@ export class ScrumNoteController {
   @Delete(':id')
   @Roles('scrum_note:delete', 'ADMIN')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @ApiOperation({
     summary: 'Supprime une note de scrum',
     description: 'Supprime définitivement une note. Seul le propriétaire ou un admin peut supprimer.',
