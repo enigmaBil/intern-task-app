@@ -147,9 +147,21 @@ export const authOptions: NextAuthOptions = {
   },
   debug: process.env.NODE_ENV === "development",
   callbacks: {
-    async jwt({ token, user, account, profile }) {
+    async jwt({ token, user, account, profile, trigger }) {
+      // Log pour debug
+      console.log("[Auth] JWT callback:", {
+        hasUser: !!user,
+        hasAccount: !!account,
+        hasProfile: !!profile,
+        trigger,
+        provider: account?.provider,
+      });
+
       // Connexion initiale avec Credentials Provider
-      if (user && !account) {
+      // Pour credentials, user est défini mais account peut être null ou avoir provider="credentials"
+      if (user && (!account || account.provider === "credentials")) {
+        console.log("[Auth] Processing credentials login...");
+        
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
@@ -158,8 +170,6 @@ export const authOptions: NextAuthOptions = {
         token.role = (user as any).role;
         token.accessToken = (user as any).accessToken;
         token.refreshToken = (user as any).refreshToken;
-        // Ne pas stocker idToken dans le cookie JWT (trop gros)
-        // token.idToken = (user as any).idToken;
         token.expiresAt = (user as any).expiresAt;
 
         console.log(
@@ -179,11 +189,11 @@ export const authOptions: NextAuthOptions = {
       }
 
       // Connexion initiale avec Keycloak Provider (Google)
-      if (account && profile) {
+      if (account && account.provider === "keycloak-google" && profile) {
+        console.log("[Auth] Processing Google login...");
+        
         token.accessToken = account.access_token;
         token.refreshToken = account.refresh_token;
-        // Ne pas stocker idToken dans le cookie JWT (trop gros)
-        // token.idToken = account.id_token;
         token.expiresAt = account.expires_at;
 
         token.id = profile.sub as string;
