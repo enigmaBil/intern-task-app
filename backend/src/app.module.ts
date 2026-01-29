@@ -9,12 +9,14 @@ import { APP_GUARD } from '@nestjs/core';
 import { UserModule } from './presentation/user/user.module';
 import { TaskModule } from './presentation/task/task.module';
 import { ScrumNoteModule } from './presentation/scrum-note/scrum-note.module';
+import corsConfig from './infrastructure/config/cors.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
+      load: [corsConfig],
     }),
     // Configuration du Throttling (Rate Limiting)
     ThrottlerModule.forRoot([
