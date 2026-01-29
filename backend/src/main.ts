@@ -21,14 +21,9 @@ async function bootstrap() {
   }));
 
   // CORS - Configuration sécurisée
-  const frontendUrl = configService.get<string>('app.frontendUrl') || process.env.FRONTEND_URL || 'http://localhost:3000';
-  app.enableCors({
-    origin: [frontendUrl, 'http://localhost:3000', 'http://192.168.100.144:3000', 'http://localhost:3001', 'http://192.168.100.144:3001'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID'],
-    exposedHeaders: ['X-Request-ID'],
-  });
+  app.enableCors(
+    configService.get('cors'),
+  );
 
   // Global prefix pour toutes les routes API
   app.setGlobalPrefix('api/v1', {
@@ -102,10 +97,11 @@ async function bootstrap() {
   logger.log('='.repeat(60));
   logger.log(`📍 URL: http://localhost:${port}`);
   logger.log(`📚 Swagger: http://localhost:${port}/api/docs`);
-  logger.log(`🔐 Keycloak: ${configService.get('keycloak.url') || process.env.KC_AUTH_SERVER_URL}`);
+  logger.log(`🔐 Keycloak: ${configService.get('keycloak.url') || process.env.KC_URL_PUBLIC}`);
   logger.log(`🌍 Realm: ${configService.get('keycloak.realm') || process.env.KC_REALM || 'mini-jira'}`);
   logger.log(`🔑 Client: ${configService.get('keycloak.clientId') || process.env.KC_CLIENT_ID || 'mini-jira-backend'}`);
-  logger.log(`🌐 CORS: ${frontendUrl}`);
+  logger.log(`🌐 CORS origins: ${process.env.CORS_ORIGINS || 'Non défini'}`);
+  logger.log(`🍪 CORS credentials: ${process.env.CORS_CREDENTIALS}`);
   logger.log('='.repeat(60));
 }
 
