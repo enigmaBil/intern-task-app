@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { LayoutDashboard, ListTodo, Users, FileText } from 'lucide-react';
 import { UserDropdown } from '@/presentation/components/layout/UserDropdown';
+import { NotificationBell } from '@/presentation/components/notification';
 import { useSession } from 'next-auth/react';
 import { useUserSync } from '@/presentation/hooks/useUserSync';
 
@@ -48,7 +49,10 @@ export default function DashboardLayout({
           <div className="flex items-center gap-4">
             {/* Le titre de la page sera géré par chaque page individuellement */}
           </div>
-          <UserDropdown />
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <UserDropdown />
+          </div>
         </header>
         <main className="p-6">{children}</main>
       </div>

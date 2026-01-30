@@ -5,6 +5,7 @@ export const API_CONFIG = {
     USERS: '/users',
     TASKS: '/tasks',
     SCRUM_NOTES: '/scrum-notes',
+    NOTIFICATIONS: '/notifications',
     AUTH: {
       LOGIN: '/auth/login',
       LOGOUT: '/auth/logout',
