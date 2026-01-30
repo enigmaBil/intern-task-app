@@ -17,7 +17,7 @@ services:
       POSTGRES_PASSWORD: ${KC_DB_PASSWORD}
       POSTGRES_DB: ${KC_DB}
     volumes:
-      - mini-jira-keycloak-data:/var/lib/postgresql
+      - mini-jira-keycloak-data:/var/lib/postgresql/data
     ports:
       - "${KC_DB_URL_PORT}:5432"
     healthcheck:
@@ -27,7 +27,7 @@ services:
       retries: 5
       start_period: 10s
     mem_limit: 512m
-    restart: unless-stopped
+    restart: always
 
   postgres_backend:
     image: postgres:latest
@@ -39,7 +39,7 @@ services:
       POSTGRES_PASSWORD: ${BACKEND_DB_PASSWORD}
       POSTGRES_DB: ${BACKEND_DB_NAME}
     volumes:
-      - mini-jira-backend-data:/var/lib/postgresql
+      - mini-jira-backend-data:/var/lib/postgresql/data
     ports:
       - "${BACKEND_DB_PORT}:5432"
     healthcheck:
@@ -49,12 +49,12 @@ services:
       retries: 5
       start_period: 10s
     mem_limit: 512m
-    restart: unless-stopped  
+    restart: always
 
   keycloak:
     image: quay.io/keycloak/keycloak:latest
-    container_name: mini-jira-keycloak-dev-server
-    command: ["start-dev"]
+    container_name: mini-jira-keycloak-server
+    command: ["start", "--optimized"]
     depends_on:
       postgres:
         condition: service_healthy
@@ -67,8 +67,9 @@ services:
       KC_DB_URL: jdbc:postgresql://postgres:5432/${KC_DB}
       KC_DB_USERNAME: ${KC_DB_USERNAME}
       KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+      KC_HOSTNAME: ${KC_HOSTNAME}
+      KC_PROXY: edge
       KC_HTTP_ENABLED: "true"
-      KC_HOSTNAME_STRICT: "false"
     ports:
       - "${KC_HTTP_PORT}:8080"
     healthcheck:
@@ -79,12 +80,12 @@ services:
       start_period: 60s
     mem_limit: 1g
     cpus: 1.0
-    restart: unless-stopped
+    restart: always
 
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: mini-jira-backend
     depends_on:
       keycloak:
@@ -94,6 +95,7 @@ services:
     networks:
       - mini-jira-network
     environment:
+      NODE_ENV: production
       DB_HOST: postgres_backend
       DB_PORT: 5432
       DB_NAME: ${BACKEND_DB_NAME}
@@ -110,23 +112,29 @@ services:
       CORS_CREDENTIALS: ${CORS_CREDENTIALS}
     ports:
       - "${BACKEND_PORT}:3001"
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
-    command: sh -c "npm run prisma:migrate:deploy && npm run start:dev"
-    restart: unless-stopped
-  
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: always
+
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
     container_name: mini-jira-frontend
     depends_on:
       backend:
-        condition: service_started
+        condition: service_healthy
     networks:
       - mini-jira-network
     environment:
+      NODE_ENV: production
       NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL}
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER}
@@ -139,9 +147,10 @@ services:
       AUTH_TRUST_HOST: "true"
     ports:
       - "${FRONTEND_PORT}:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
-    command: npm run dev
-    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: always

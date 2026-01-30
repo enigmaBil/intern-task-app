@@ -1,0 +1,15 @@
+FROM node:22-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY src/infrastructure/database/prisma ./src/infrastructure/database/prisma/
+COPY src/infrastructure/config/prisma.config.ts ./src/infrastructure/config/
+
+RUN npm install
+
+RUN npm run prisma:generate
+
+EXPOSE 3001
+
+CMD ["sh", "-c", "npm run prisma:migrate:deploy && npm run start:dev"]

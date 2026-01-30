@@ -92,13 +92,12 @@ npm run prisma:format
 ### User
 Utilisateur de l'application, synchronisé avec Keycloak.
 
-**Rôles** : `ADMIN`, `PRODUCT_OWNER`, `SCRUM_MASTER`, `DEVELOPER`
+**Rôles** : `ADMIN`, `INTERN`
 
 ### Task
 Tâche du projet avec statut, priorité, estimation, etc.
 
-**Statuts** : `TODO`, `IN_PROGRESS`, `IN_REVIEW`, `DONE`, `BLOCKED`  
-**Priorités** : `LOW`, `MEDIUM`, `HIGH`, `URGENT`
+**Statuts** : `TODO`, `IN_PROGRESS`, `DONE` 
 
 ### ScrumNote
 Notes quotidiennes du daily standup (what I did, what I will do, blockers).
@@ -181,4 +180,4 @@ Ne jamais utiliser `prisma:migrate` (mode dev) en production !
 - [Prisma 7 Docs](https://www.prisma.io/docs)
 - [Prisma 7 Migration Guide](https://www.prisma.io/docs/orm/more/upgrade-guides/upgrading-versions/upgrading-to-prisma-7)
 - [Prisma with NestJS](https://docs.nestjs.com/recipes/prisma)
-- [Clean Architecture with Prisma](https://www.prisma.io/blog/clean-architecture-with-prisma)
+- [Clean Architecture with Prisma](https://www.prisma.io/blog clean-architecture-with-prisma)
