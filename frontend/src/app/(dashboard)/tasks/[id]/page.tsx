@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { use } from 'react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useTask } from '@/presentation/hooks';
@@ -7,11 +7,11 @@ import { LoadingSpinner, ErrorMessage } from '@/presentation/components/shared';
 import { TaskDetailsModal } from '@/presentation/components/modals';
 
 interface TaskPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default function TaskPage({ params }: TaskPageProps) {
-  const { id } = React.use(params);
+  const { id } = use(params);
   const { task, isLoading, error, refetch } = useTask(id);
   const router = useRouter();
 

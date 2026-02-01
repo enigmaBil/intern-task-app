@@ -7,7 +7,7 @@ import { LoadingSpinner, ErrorMessage } from '@/presentation/components/shared';
 import { AddTaskModal } from '@/presentation/components/modals';
 
 export default function TasksPage() {
-  const { tasks, isLoading, error, refetch } = useTasks();
+  const { tasks, isLoading, error, refetch, updateTaskStatus } = useTasks();
   const { user } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
 
@@ -24,7 +24,13 @@ export default function TasksPage() {
       <div className="mt-8">
         {isLoading && <LoadingSpinner />}
         {error && <ErrorMessage message={error} onRetry={refetch} />}
-        {!isLoading && !error && <KanbanBoard tasks={tasks} onTaskUpdated={refetch} />}
+        {!isLoading && !error && (
+          <KanbanBoard 
+            tasks={tasks} 
+            onTaskUpdated={refetch}
+            onTaskStatusChange={updateTaskStatus}
+          />
+        )}
       </div>
     </div>
   );

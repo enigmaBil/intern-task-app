@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { MoreVertical, Pencil, Trash2, Eye, UserCheck } from 'lucide-react';
+import { useState, memo } from 'react';
+import { MoreHorizontal, Pencil, Trash2, Eye, UserCheck, Calendar, User } from 'lucide-react';
 import { Task } from '@/core/domain/entities';
-import { TaskStatusLabels } from '@/core/domain/enums';
+import { TaskStatus, TaskStatusLabels } from '@/core/domain/enums';
 import { EditTaskModal, TaskDetailsModal, AssignTaskModal } from '@/presentation/components/modals';
 import { ConfirmDialog } from '@/presentation/components/shared/ConfirmDialog';
 import { useTaskMutations } from '@/presentation/hooks/useTaskMutations';
@@ -17,13 +17,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/presentation/components/ui/dropdown-menu';
+import { cn } from '@/shared/utils';
 
 interface TaskCardProps {
   task: Task;
   onTaskUpdated?: () => void;
+  isDragging?: boolean;
 }
 
-export function TaskCard({ task, onTaskUpdated }: TaskCardProps) {
+// Badge de priorité visuelle basé sur la deadline
+function getDeadlineStatus(deadline: Date | null): 'overdue' | 'urgent' | 'normal' | null {
+  if (!deadline) return null;
+  const now = new Date();
+  const deadlineDate = new Date(deadline);
+  const diffDays = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  
+  if (diffDays < 0) return 'overdue';
+  if (diffDays <= 2) return 'urgent';
+  return 'normal';
+}
+
+export const TaskCard = memo(function TaskCard({ task, onTaskUpdated, isDragging = false }: TaskCardProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -31,6 +45,8 @@ export function TaskCard({ task, onTaskUpdated }: TaskCardProps) {
   const { deleteTask, isLoading } = useTaskMutations();
   const { user } = useAuth();
   const isAdmin = user?.role === 'ADMIN';
+  
+  const deadlineStatus = getDeadlineStatus(task.deadline);
 
   const handleDelete = async () => {
     const success = await deleteTask(task.id);
@@ -45,69 +61,146 @@ export function TaskCard({ task, onTaskUpdated }: TaskCardProps) {
     setDeleteOpen(false);
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Ne pas ouvrir les détails si on est en train de drag ou si on clique sur le menu
+    if (isDragging) return;
+    if ((e.target as HTMLElement).closest('[data-radix-collection-item]')) {
+      return;
+    }
+    if ((e.target as HTMLElement).closest('button')) {
+      return;
+    }
+    setDetailsOpen(true);
+  };
+
   return (
-    <div className="rounded-lg border bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="font-semibold flex-1">{task.title}</h3>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {isAdmin && (
-              <>
-                <DropdownMenuItem onClick={() => setEditOpen(true)}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Mettre à jour
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setAssignOpen(true)}>
-                  <UserCheck className="mr-2 h-4 w-4" />
-                  Assigner
-                </DropdownMenuItem>
-              </>
+    <>
+      <div
+        onClick={handleCardClick}
+        className={cn(
+          'group relative',
+          'rounded-lg border bg-white',
+          'p-4',
+          'cursor-pointer',
+          'transition-all duration-200',
+          'hover:border-gray-300',
+          'active:scale-[0.98]',
+          // Barre de couleur à gauche selon le statut
+          'before:absolute before:left-0 before:top-3 before:bottom-3',
+          'before:w-1 before:rounded-full',
+          task.status === TaskStatus.TODO && 'before:bg-gray-300',
+          task.status === TaskStatus.IN_PROGRESS && 'before:bg-blue-500',
+          task.status === TaskStatus.DONE && 'before:bg-green-500'
+        )}
+      >
+        {/* Header avec titre et menu */}
+        <div className="flex items-start justify-between gap-2 pl-2">
+          <h3
+            className={cn(
+              'font-medium text-gray-900 line-clamp-2 flex-1',
+              'text-sm leading-snug',
+              task.status === TaskStatus.DONE && 'line-through text-gray-500'
             )}
-            <DropdownMenuItem onClick={() => setDetailsOpen(true)}>
-              <Eye className="mr-2 h-4 w-4" />
-              Afficher détails
-            </DropdownMenuItem>
-            {isAdmin && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => setDeleteOpen(true)}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Supprimer
-                </DropdownMenuItem>
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      
-      <p className="mt-2 text-sm text-gray-600 line-clamp-2">{task.description}</p>
-      
-      {task.deadline && (
-        <p className="mt-2 text-xs text-gray-500">
-          Échéance: {new Date(task.deadline).toLocaleDateString('fr-FR')}
-        </p>
-      )}
-      
-      {task.assigneeId && (
-        <p className="mt-1 text-xs text-blue-600">
-          ✓ Assignée
-        </p>
-      )}
-      
-      <div className="mt-4 flex items-center justify-between">
-        <span className="text-xs text-gray-500">
-          {TaskStatusLabels[task.status]}
-        </span>
+          >
+            {task.title}
+          </h3>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  'h-7 w-7 shrink-0',
+                  'opacity-0 group-hover:opacity-100',
+                  'transition-opacity duration-150'
+                )}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={() => setDetailsOpen(true)}>
+                <Eye className="mr-2 h-4 w-4" />
+                Voir les détails
+              </DropdownMenuItem>
+              {isAdmin && (
+                <>
+                  <DropdownMenuItem onClick={() => setEditOpen(true)}>
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Modifier
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setAssignOpen(true)}>
+                    <UserCheck className="mr-2 h-4 w-4" />
+                    Assigner
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => setDeleteOpen(true)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Supprimer
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Description (si présente) */}
+        {task.description && (
+          <p className="mt-2 pl-2 text-xs text-gray-500 line-clamp-2">
+            {task.description}
+          </p>
+        )}
+
+        {/* Footer avec métadonnées */}
+        <div className="mt-3 pl-2 flex items-center gap-2 flex-wrap">
+          {/* Deadline */}
+          {task.deadline && (
+            <span
+              className={cn(
+                'inline-flex items-center gap-1',
+                'text-xs px-2 py-0.5 rounded-md',
+                deadlineStatus === 'overdue' && 'bg-red-100 text-red-700',
+                deadlineStatus === 'urgent' && 'bg-orange-100 text-orange-700',
+                deadlineStatus === 'normal' && 'bg-gray-100 text-gray-600'
+              )}
+            >
+              <Calendar className="h-3 w-3" />
+              {new Date(task.deadline).toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'short',
+              })}
+            </span>
+          )}
+
+          {/* Assigné */}
+          {task.assigneeId && (
+            <span
+              className={cn(
+                'inline-flex items-center gap-1',
+                'text-xs px-2 py-0.5 rounded-md',
+                'bg-blue-50 text-blue-600'
+              )}
+            >
+              <User className="h-3 w-3" />
+              Assignée
+            </span>
+          )}
+
+          {/* Heures estimées */}
+          {task.estimatedHours && (
+            <span className="text-xs text-gray-400">
+              {task.estimatedHours}h estimées
+            </span>
+          )}
+        </div>
       </div>
 
+      {/* Modals */}
       <EditTaskModal
         task={task}
         open={editOpen}
@@ -137,6 +230,6 @@ export function TaskCard({ task, onTaskUpdated }: TaskCardProps) {
         onConfirm={handleDelete}
         variant="destructive"
       />
-    </div>
+    </>
   );
-}
+});
