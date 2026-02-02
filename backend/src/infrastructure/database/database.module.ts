@@ -1,6 +1,11 @@
 import { Global, Module } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { PrismaScrumNoteRepository, PrismaTaskRepository, PrismaUserRepository } from './repositories';
+import { 
+  PrismaScrumNoteRepository, 
+  PrismaTaskRepository, 
+  PrismaUserRepository,
+  PrismaNotificationRepository,
+} from './repositories';
 
 /**
  * Module Database - Fournit l'accès à la base de données
@@ -40,6 +45,14 @@ import { PrismaScrumNoteRepository, PrismaTaskRepository, PrismaUserRepository }
       provide: 'IScrumNoteRepository',
       useClass: PrismaScrumNoteRepository,
     },
+    {
+      provide: 'INotificationInteractor',
+      useClass: PrismaNotificationRepository,
+    },
+    {
+      provide: 'INotificationRepository',
+      useClass: PrismaNotificationRepository,
+    },
   ],
   exports: [
     PrismaService,
@@ -49,6 +62,8 @@ import { PrismaScrumNoteRepository, PrismaTaskRepository, PrismaUserRepository }
     'ITaskRepository',
     'IScrumNoteInteractor',
     'IScrumNoteRepository',
+    'INotificationInteractor',
+    'INotificationRepository',
   ],
 })
 export class DatabaseModule { }

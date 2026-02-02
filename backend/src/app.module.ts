@@ -9,6 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { UserModule } from './presentation/user/user.module';
 import { TaskModule } from './presentation/task/task.module';
 import { ScrumNoteModule } from './presentation/scrum-note/scrum-note.module';
+import { NotificationModule } from './presentation/notification/notification.module';
 import corsConfig from './infrastructure/config/cors.config';
 
 @Module({
@@ -37,6 +38,7 @@ import corsConfig from './infrastructure/config/cors.config';
     UserModule,
     TaskModule,
     ScrumNoteModule,
+    NotificationModule, // Module de notifications (global pour SSE)
   ],
   controllers: [],
   providers: [

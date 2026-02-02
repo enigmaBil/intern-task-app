@@ -28,18 +28,33 @@ import { SortableTaskCard } from './SortableTaskCard';
 import { useTaskMutations } from '@/presentation/hooks/useTaskMutations';
 import { toast } from 'sonner';
 import { createPortal } from 'react-dom';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/presentation/components/ui/alert-dialog';
+import { AlertTriangle } from 'lucide-react';
 
 interface KanbanBoardProps {
   tasks: Task[];
   onTaskUpdated?: () => void;
   onTaskStatusChange?: (taskId: string, newStatus: TaskStatus) => void;
+  onAddTask?: (status: TaskStatus) => void;
 }
 
 const STATUS_ORDER = [TaskStatus.TODO, TaskStatus.IN_PROGRESS, TaskStatus.DONE] as const;
 
-export function KanbanBoard({ tasks, onTaskUpdated, onTaskStatusChange }: KanbanBoardProps) {
+export function KanbanBoard({ tasks, onTaskUpdated, onTaskStatusChange, onAddTask }: KanbanBoardProps) {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overId, setOverId] = useState<UniqueIdentifier | null>(null);
+  const [transitionError, setTransitionError] = useState<{
+    from: TaskStatus;
+    to: TaskStatus;
+  } | null>(null);
   const { updateTask } = useTaskMutations();
 
   // Organiser les tâches par colonne
@@ -142,22 +157,30 @@ export function KanbanBoard({ tasks, onTaskUpdated, onTaskStatusChange }: Kanban
 
         // 2. Appel API en arrière-plan
         try {
-          const result = await updateTask(taskId, { status: newStatus });
+          await updateTask(taskId, { status: newStatus });
           
-          if (result) {
-            toast.success('Tâche déplacée', {
-              description: `Vers ${getStatusLabel(newStatus)}`,
-              duration: 1500,
-            });
-          } else {
-            // Rollback si échec
-            onTaskStatusChange?.(taskId, originalTask.status);
-            toast.error('Erreur lors du déplacement');
-          }
-        } catch {
+          toast.success('Tâche déplacée', {
+            description: `Vers ${getStatusLabel(newStatus)}`,
+            duration: 1500,
+          });
+        } catch (err) {
           // Rollback si erreur
           onTaskStatusChange?.(taskId, originalTask.status);
-          toast.error('Erreur lors du déplacement');
+          
+          // Message d'erreur personnalisé selon la transition
+          const errorMessage = err instanceof Error ? err.message : '';
+          
+          if (errorMessage.includes('Invalid task status transition')) {
+            // Afficher un AlertDialog pour les erreurs de transition
+            setTransitionError({
+              from: originalTask.status,
+              to: newStatus,
+            });
+          } else {
+            toast.error('Erreur lors du déplacement', {
+              description: errorMessage || 'Une erreur est survenue',
+            });
+          }
         }
       }
     },
@@ -172,6 +195,7 @@ export function KanbanBoard({ tasks, onTaskUpdated, onTaskStatusChange }: Kanban
   }, []);
 
   return (
+    <>
     <DndContext
       sensors={sensors}
       collisionDetection={closestCorners}
@@ -181,19 +205,22 @@ export function KanbanBoard({ tasks, onTaskUpdated, onTaskStatusChange }: Kanban
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <div className="grid gap-4 md:gap-6 md:grid-cols-3 min-h-[calc(100vh-200px)]">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-6 min-h-[calc(100vh-200px)] overflow-x-auto pb-4">
         {STATUS_ORDER.map((status) => (
           <SortableContext
             key={status}
             items={tasksByStatus[status].map((t) => t.id)}
             strategy={verticalListSortingStrategy}
           >
-            <TaskColumn
-              status={status}
-              tasks={tasksByStatus[status]}
-              isOver={overId === status}
-              onTaskUpdated={onTaskUpdated}
-            />
+            <div className="w-full md:flex-1 md:min-w-[280px] md:max-w-[350px]">
+              <TaskColumn
+                status={status}
+                tasks={tasksByStatus[status]}
+                isOver={overId === status}
+                onTaskUpdated={onTaskUpdated}
+                onAddTask={onAddTask}
+              />
+            </div>
           </SortableContext>
         ))}
       </div>
@@ -217,6 +244,35 @@ export function KanbanBoard({ tasks, onTaskUpdated, onTaskStatusChange }: Kanban
           document.body
         )}
     </DndContext>
+
+    {/* Alert Dialog pour les erreurs de transition */}
+    <AlertDialog open={!!transitionError} onOpenChange={() => setTransitionError(null)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
+              <AlertTriangle className="h-5 w-5 text-orange-600" />
+            </div>
+            <AlertDialogTitle>Transition impossible</AlertDialogTitle>
+          </div>
+          <AlertDialogDescription className="pt-2">
+            {transitionError && (
+              <>
+                Impossible de passer une tâche de <strong>&quot;{getStatusLabel(transitionError.from)}&quot;</strong> à <strong>&quot;{getStatusLabel(transitionError.to)}&quot;</strong>.
+                <br /><br />
+                Une tâche terminée doit d&apos;abord repasser par &quot;En cours&quot; avant de pouvoir être remise à faire.
+              </>
+            )}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogAction onClick={() => setTransitionError(null)}>
+            Compris
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
 

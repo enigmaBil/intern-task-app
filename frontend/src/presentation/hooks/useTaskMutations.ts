@@ -34,11 +34,13 @@ export function useTaskMutations() {
       const task = await taskInteractor.updateTask.execute(id, data);
       return task;
     } catch (err) {
-      const message = err instanceof DomainException
-        ? err.message
-        : 'Erreur lors de la mise à jour de la tâche';
+      // Préserver le message d'erreur original pour permettre un traitement personnalisé
+      const message = err instanceof Error 
+        ? err.message 
+        : (err instanceof DomainException ? err.message : 'Erreur lors de la mise à jour de la tâche');
       setError(message);
-      return null;
+      // Propager l'erreur avec le message original
+      throw new Error(message);
     } finally {
       setIsLoading(false);
     }

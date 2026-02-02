@@ -33,14 +33,14 @@ export default function UsersPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Utilisateurs</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold">Utilisateurs</h1>
       </div>
-      <p className="mt-4 text-gray-600">
+      <p className="mt-2 sm:mt-4 text-sm sm:text-base text-gray-600">
         Gestion des membres de l'équipe
       </p>
 
-      <div className="mt-8">
+      <div className="mt-6 sm:mt-8">
         {isLoading && <LoadingSpinner />}
         {error && <ErrorMessage message={error} onRetry={refetch} />}
         {!isLoading && !error && (

@@ -111,3 +111,11 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 # ==========================================
 *.log
 docker-compose.override.yml
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

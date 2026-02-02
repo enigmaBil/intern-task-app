@@ -10,6 +10,7 @@ import { Grid3x3, List, Filter, X, CalendarCheck } from 'lucide-react';
 import { useAuth } from '@/presentation/hooks/useAuth';
 import { useUsers } from '@/presentation/hooks/useUsers';
 import { Button } from '@/presentation/components/ui/button';
+import { cn } from '@/shared/utils';
 
 type ViewMode = 'grid' | 'list';
 
@@ -87,26 +88,27 @@ export default function ScrumNotesPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Notes Scrum</h1>
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold">Notes Scrum</h1>
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant={todayOnly ? 'default' : 'outline'}
             size="sm"
             onClick={handleTodayFilter}
+            className="text-xs sm:text-sm"
           >
-            <CalendarCheck className="mr-2 h-4 w-4" />
-            Aujourd'hui
+            <CalendarCheck className="mr-1 sm:mr-2 h-4 w-4" />
+            <span className="hidden xs:inline">Aujourd'hui</span>
           </Button>
 
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowFilters(!showFilters)}
-            className={showFilters ? 'bg-gray-100' : ''}
+            className={cn('text-xs sm:text-sm', showFilters && 'bg-gray-100')}
           >
-            <Filter className="mr-2 h-4 w-4" />
-            Filtres
+            <Filter className="mr-1 sm:mr-2 h-4 w-4" />
+            <span className="hidden xs:inline">Filtres</span>
           </Button>
           
           <div className="flex border rounded-md">
@@ -114,7 +116,7 @@ export default function ScrumNotesPage() {
               variant={viewMode === 'grid' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('grid')}
-              className="rounded-r-none"
+              className="rounded-r-none px-2 sm:px-3"
             >
               <Grid3x3 className="h-4 w-4" />
             </Button>
@@ -122,7 +124,7 @@ export default function ScrumNotesPage() {
               variant={viewMode === 'list' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('list')}
-              className="rounded-l-none"
+              className="rounded-l-none px-2 sm:px-3"
             >
               <List className="h-4 w-4" />
             </Button>
@@ -131,7 +133,7 @@ export default function ScrumNotesPage() {
           <AddScrumNoteModal onNoteAdded={refetch} />
         </div>
       </div>
-      <p className="mt-4 text-gray-600">
+      <p className="mt-2 sm:mt-4 text-sm sm:text-base text-gray-600">
         Daily stand-up notes de l'équipe
       </p>
 

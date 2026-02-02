@@ -71,14 +71,14 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-8">
+      <div className="w-full max-w-md space-y-6 sm:space-y-8 rounded-lg bg-white p-6 sm:p-8 shadow-lg">
         <div className="text-center">
-          <h2 className="text-3xl font-bold">Créer un compte</h2>
-          <p className="mt-2 text-gray-600">Rejoignez Mini Jira</p>
+          <h2 className="text-2xl sm:text-3xl font-bold">Créer un compte</h2>
+          <p className="mt-2 text-sm sm:text-base text-gray-600">Rejoignez Mini Jira</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        <form onSubmit={handleSubmit} className="mt-6 sm:mt-8 space-y-4 sm:space-y-6">
           {error && (
             <div className="rounded-lg bg-red-50 p-3 text-sm text-red-800">
               {error}
@@ -86,7 +86,7 @@ export default function RegisterPage() {
           )}
 
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
                   Prénom

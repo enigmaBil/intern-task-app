@@ -23,6 +23,7 @@ interface TaskCardProps {
   task: Task;
   onTaskUpdated?: () => void;
   isDragging?: boolean;
+  cardBgColor?: string;
 }
 
 // Badge de priorité visuelle basé sur la deadline
@@ -37,7 +38,7 @@ function getDeadlineStatus(deadline: Date | null): 'overdue' | 'urgent' | 'norma
   return 'normal';
 }
 
-export const TaskCard = memo(function TaskCard({ task, onTaskUpdated, isDragging = false }: TaskCardProps) {
+export const TaskCard = memo(function TaskCard({ task, onTaskUpdated, isDragging = false, cardBgColor }: TaskCardProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -79,25 +80,21 @@ export const TaskCard = memo(function TaskCard({ task, onTaskUpdated, isDragging
         onClick={handleCardClick}
         className={cn(
           'group relative',
-          'rounded-lg border bg-white',
+          'rounded-lg border border-transparent',
           'p-4',
           'cursor-pointer',
           'transition-all duration-200',
-          'hover:border-gray-300',
+          'hover:border-gray-200',
           'active:scale-[0.98]',
-          // Barre de couleur à gauche selon le statut
-          'before:absolute before:left-0 before:top-3 before:bottom-3',
-          'before:w-1 before:rounded-full',
-          task.status === TaskStatus.TODO && 'before:bg-gray-300',
-          task.status === TaskStatus.IN_PROGRESS && 'before:bg-blue-500',
-          task.status === TaskStatus.DONE && 'before:bg-green-500'
+          // Arrière-plan dynamique selon la colonne
+          cardBgColor
         )}
       >
         {/* Header avec titre et menu */}
-        <div className="flex items-start justify-between gap-2 pl-2">
+        <div className="flex items-start justify-between gap-2">
           <h3
             className={cn(
-              'font-medium text-gray-900 line-clamp-2 flex-1',
+              'font-medium text-gray-800 line-clamp-2 flex-1',
               'text-sm leading-snug',
               task.status === TaskStatus.DONE && 'line-through text-gray-500'
             )}
@@ -111,7 +108,7 @@ export const TaskCard = memo(function TaskCard({ task, onTaskUpdated, isDragging
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  'h-7 w-7 shrink-0',
+                  'h-7 w-7 shrink-0 text-gray-400 hover:text-gray-600 hover:bg-gray-200/50',
                   'opacity-0 group-hover:opacity-100',
                   'transition-opacity duration-150'
                 )}
@@ -151,22 +148,46 @@ export const TaskCard = memo(function TaskCard({ task, onTaskUpdated, isDragging
 
         {/* Description (si présente) */}
         {task.description && (
-          <p className="mt-2 pl-2 text-xs text-gray-500 line-clamp-2">
+          <p className="mt-2 text-xs text-gray-500 line-clamp-2">
             {task.description}
           </p>
         )}
 
+        {/* Badge de statut style Notion */}
+        <div className="mt-3">
+          <span
+            className={cn(
+              'inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium',
+              task.status === TaskStatus.TODO && 'bg-gray-200 text-gray-600',
+              task.status === TaskStatus.IN_PROGRESS && 'bg-blue-200 text-blue-700',
+              task.status === TaskStatus.DONE && 'bg-green-200 text-green-700'
+            )}
+          >
+            <span 
+              className={cn(
+                'w-1.5 h-1.5 rounded-full',
+                task.status === TaskStatus.TODO && 'bg-gray-400',
+                task.status === TaskStatus.IN_PROGRESS && 'bg-blue-500',
+                task.status === TaskStatus.DONE && 'bg-green-500'
+              )}
+            />
+            {task.status === TaskStatus.TODO && 'Pas commencé'}
+            {task.status === TaskStatus.IN_PROGRESS && 'En cours'}
+            {task.status === TaskStatus.DONE && 'Terminé'}
+          </span>
+        </div>
+
         {/* Footer avec métadonnées */}
-        <div className="mt-3 pl-2 flex items-center gap-2 flex-wrap">
+        <div className="mt-2 flex items-center gap-2 flex-wrap">
           {/* Deadline */}
           {task.deadline && (
             <span
               className={cn(
                 'inline-flex items-center gap-1',
                 'text-xs px-2 py-0.5 rounded-md',
-                deadlineStatus === 'overdue' && 'bg-red-100 text-red-700',
-                deadlineStatus === 'urgent' && 'bg-orange-100 text-orange-700',
-                deadlineStatus === 'normal' && 'bg-gray-100 text-gray-600'
+                deadlineStatus === 'overdue' && 'bg-red-100 text-red-600',
+                deadlineStatus === 'urgent' && 'bg-orange-100 text-orange-600',
+                deadlineStatus === 'normal' && 'bg-gray-200 text-gray-600'
               )}
             >
               <Calendar className="h-3 w-3" />

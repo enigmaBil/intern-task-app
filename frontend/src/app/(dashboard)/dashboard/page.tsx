@@ -26,15 +26,15 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="mt-2 text-gray-600">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold">Dashboard</h1>
+        <p className="mt-2 text-sm sm:text-base text-gray-600">
           Bienvenue {user?.firstName} - Vue d'ensemble de vos projets
         </p>
       </div>
 
       {/* Statistiques principales */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+      <div className="grid gap-4 sm:gap-6 grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8">
         <StatCard
           title="Total Tâches"
           value={tasksLoading ? '...' : tasks.length.toString()}
@@ -69,7 +69,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Détails des tâches par statut */}
-      <div className="grid gap-6 md:grid-cols-3 mb-8">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-3 mb-6 sm:mb-8">
         <TaskStatusCard
           title="À faire"
           count={tasksLoading ? '...' : todoTasks.toString()}
@@ -93,10 +93,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Tables avec données réelles */}
-      <div className="grid gap-6 lg:grid-cols-2 mb-8">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2 mb-6 sm:mb-8">
         {/* Table des tâches récentes */}
-        <div className="rounded-lg border bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold mb-4">Tâches récentes</h2>
+        <div className="rounded-lg border bg-white p-4 sm:p-6 shadow-sm overflow-x-auto">
+          <h2 className="text-base sm:text-lg font-semibold mb-4">Tâches récentes</h2>
           {tasksLoading ? (
             <p className="text-gray-500 text-center py-8">Chargement...</p>
           ) : (
@@ -105,8 +105,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Table des notes Scrum récentes */}
-        <div className="rounded-lg border bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold mb-4">Notes Scrum récentes</h2>
+        <div className="rounded-lg border bg-white p-4 sm:p-6 shadow-sm overflow-x-auto">
+          <h2 className="text-base sm:text-lg font-semibold mb-4">Notes Scrum récentes</h2>
           {notesLoading ? (
             <p className="text-gray-500 text-center py-8">Chargement...</p>
           ) : (
@@ -117,8 +117,8 @@ export default function DashboardPage() {
 
       {/* Table des utilisateurs (uniquement pour ADMIN) */}
       {isAdmin && (
-        <div className="rounded-lg border bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold mb-4">Utilisateurs récents</h2>
+        <div className="rounded-lg border bg-white p-4 sm:p-6 shadow-sm overflow-x-auto">
+          <h2 className="text-base sm:text-lg font-semibold mb-4">Utilisateurs récents</h2>
           {usersLoading ? (
             <p className="text-gray-500 text-center py-8">Chargement...</p>
           ) : (
@@ -147,16 +147,16 @@ function StatCard({ title, value, icon, color, trend }: StatCardProps) {
   };
 
   return (
-    <div className="rounded-lg border bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+    <div className="rounded-lg border bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          <p className="mt-2 text-3xl font-bold">{value}</p>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">{title}</p>
+          <p className="mt-1 sm:mt-2 text-2xl sm:text-3xl font-bold">{value}</p>
           {trend && (
-            <p className="mt-1 text-xs text-gray-500">{trend}</p>
+            <p className="mt-1 text-xs text-gray-500 truncate">{trend}</p>
           )}
         </div>
-        <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
+        <div className={`p-2 sm:p-3 rounded-lg ${colorClasses[color]} shrink-0`}>
           {icon}
         </div>
       </div>
@@ -185,14 +185,14 @@ function TaskStatusCard({ title, count, icon, color }: TaskStatusCardProps) {
   };
 
   return (
-    <div className={`rounded-lg border-2 p-6 ${colorClasses[color]} hover:shadow-md transition-shadow`}>
-      <div className="flex items-center gap-3 mb-2">
+    <div className={`rounded-lg border-2 p-4 sm:p-6 ${colorClasses[color]} hover:shadow-md transition-shadow`}>
+      <div className="flex items-center gap-2 sm:gap-3 mb-2">
         <div className={textColorClasses[color]}>
           {icon}
         </div>
-        <h3 className="font-medium text-gray-700">{title}</h3>
+        <h3 className="font-medium text-sm sm:text-base text-gray-700">{title}</h3>
       </div>
-      <p className={`text-4xl font-bold ${textColorClasses[color]}`}>{count}</p>
+      <p className={`text-3xl sm:text-4xl font-bold ${textColorClasses[color]}`}>{count}</p>
     </div>
   );
 }

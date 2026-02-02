@@ -83,7 +83,7 @@ export function NotificationBell() {
 
         <DropdownMenuContent 
           align="end" 
-          className="w-[380px] p-0"
+          className="w-[calc(100vw-2rem)] sm:w-[380px] max-w-[380px] p-0 mx-4 sm:mx-0"
           sideOffset={8}
         >
           {/* Header */}

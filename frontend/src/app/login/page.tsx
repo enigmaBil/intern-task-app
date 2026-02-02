@@ -60,14 +60,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md space-y-8 rounded-lg bg-white p-8 shadow-lg">
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-8">
+      <div className="w-full max-w-md space-y-6 sm:space-y-8 rounded-lg bg-white p-6 sm:p-8 shadow-lg">
         <div className="text-center">
-          <h2 className="text-3xl font-bold">Mini Jira</h2>
-          <p className="mt-2 text-gray-600">Connectez-vous à votre compte</p>
+          <h2 className="text-2xl sm:text-3xl font-bold">Mini Jira</h2>
+          <p className="mt-2 text-sm sm:text-base text-gray-600">Connectez-vous à votre compte</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        <form onSubmit={handleSubmit} className="mt-6 sm:mt-8 space-y-4 sm:space-y-6">
           {successMessage && (
             <div className="rounded-lg bg-green-50 p-3 text-sm text-green-800">
               {successMessage}

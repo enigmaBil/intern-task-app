@@ -11,12 +11,14 @@ interface SortableTaskCardProps {
   task: Task;
   isOverlay?: boolean;
   onTaskUpdated?: () => void;
+  cardBgColor?: string;
 }
 
 export const SortableTaskCard = memo(function SortableTaskCard({
   task,
   isOverlay = false,
   onTaskUpdated,
+  cardBgColor,
 }: SortableTaskCardProps) {
   const {
     attributes,
@@ -56,7 +58,7 @@ export const SortableTaskCard = memo(function SortableTaskCard({
           width: '280px',
         }}
       >
-        <TaskCard task={task} isDragging />
+        <TaskCard task={task} isDragging cardBgColor={cardBgColor} />
       </div>
     );
   }
@@ -76,7 +78,7 @@ export const SortableTaskCard = memo(function SortableTaskCard({
         isDragging && 'opacity-40 scale-[0.98]'
       )}
     >
-      <TaskCard task={task} onTaskUpdated={onTaskUpdated} isDragging={isDragging} />
+      <TaskCard task={task} onTaskUpdated={onTaskUpdated} isDragging={isDragging} cardBgColor={cardBgColor} />
     </div>
   );
 });

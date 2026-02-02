@@ -39,12 +39,12 @@ import { TaskController } from './task.controller';
       useFactory: (taskInteractor) => new GetTaskByIdUseCase(taskInteractor),
       inject: ['ITaskInteractor'],
     },
-    // Use Case: Update Task
+    // Use Case: Update Task (avec notifications)
     {
       provide: UpdateTaskUseCase,
-      useFactory: (taskInteractor, userInteractor) =>
-        new UpdateTaskUseCase(taskInteractor, userInteractor),
-      inject: ['ITaskInteractor', 'IUserInteractor'],
+      useFactory: (taskInteractor, userInteractor, notificationInteractor, notificationEmitter) =>
+        new UpdateTaskUseCase(taskInteractor, userInteractor, notificationInteractor, notificationEmitter),
+      inject: ['ITaskInteractor', 'IUserInteractor', 'INotificationInteractor', 'INotificationEmitter'],
     },
     // Use Case: Delete Task
     {
@@ -53,12 +53,12 @@ import { TaskController } from './task.controller';
         new DeleteTaskUseCase(taskInteractor, userInteractor),
       inject: ['ITaskInteractor', 'IUserInteractor'],
     },
-    // Use Case: Assign Task
+    // Use Case: Assign Task (avec notifications)
     {
       provide: AssignTaskUseCase,
-      useFactory: (taskInteractor, userInteractor) =>
-        new AssignTaskUseCase(taskInteractor, userInteractor),
-      inject: ['ITaskInteractor', 'IUserInteractor'],
+      useFactory: (taskInteractor, userInteractor, notificationInteractor, notificationEmitter) =>
+        new AssignTaskUseCase(taskInteractor, userInteractor, notificationInteractor, notificationEmitter),
+      inject: ['ITaskInteractor', 'IUserInteractor', 'INotificationInteractor', 'INotificationEmitter'],
     },
     // Use Case: Get Tasks By Status
     {

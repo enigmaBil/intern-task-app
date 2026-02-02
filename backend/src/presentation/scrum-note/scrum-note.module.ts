@@ -18,12 +18,12 @@ import { ScrumNoteController } from './scrum-note.controller';
   imports: [DatabaseModule],
   controllers: [ScrumNoteController],
   providers: [
-    // Use Case: Create Scrum Note
+    // Use Case: Create Scrum Note (avec notifications)
     {
       provide: CreateScrumNoteUseCase,
-      useFactory: (scrumNoteInteractor, userInteractor) =>
-        new CreateScrumNoteUseCase(scrumNoteInteractor, userInteractor),
-      inject: ['IScrumNoteInteractor', 'IUserInteractor'],
+      useFactory: (scrumNoteInteractor, userInteractor, notificationInteractor, notificationEmitter) =>
+        new CreateScrumNoteUseCase(scrumNoteInteractor, userInteractor, notificationInteractor, notificationEmitter),
+      inject: ['IScrumNoteInteractor', 'IUserInteractor', 'INotificationInteractor', 'INotificationEmitter'],
     },
     // Use Case: Get All Scrum Notes
     {

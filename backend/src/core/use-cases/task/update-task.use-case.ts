@@ -3,7 +3,8 @@ import { TaskStatus } from "@/core/domain/enums/task-status.enum";
 import { UserRole } from "@/core/domain/enums/user-role.enum";
 import { TaskNotFoundException } from "@/core/domain/exceptions/task-not-found.exception";
 import { UserNotFoundException } from "@/core/domain/exceptions/user-not-found.exception";
-import { ITaskInteractor, IUserInteractor } from "@/core/interactors";
+import { NotificationDomainService } from "@/core/domain/services/notification-domain.service";
+import { ITaskInteractor, IUserInteractor, INotificationInteractor, INotificationEmitter } from "@/core/interactors";
 
 /**
  * Input pour mettre à jour une tâche
@@ -23,11 +24,14 @@ export interface UpdateTaskInput {
  * 
  * Règles métier :
  * - Seul un ADMIN peut mettre à jour les détails d'une tâche
+ * - Si un INTERN modifie le statut, l'ADMIN créateur reçoit une notification
  */
 export class UpdateTaskUseCase {
   constructor(
     private readonly taskInteractor: ITaskInteractor,
     private readonly userInteractor: IUserInteractor,
+    private readonly notificationInteractor?: INotificationInteractor,
+    private readonly notificationEmitter?: INotificationEmitter,
   ) {}
 
   async execute(input: UpdateTaskInput): Promise<Task> {
@@ -44,6 +48,10 @@ export class UpdateTaskUseCase {
     if (!requester) {
       throw new UserNotFoundException(input.userId);
     }
+
+    // Sauvegarder l'ancien statut pour la notification
+    const oldStatus = task.status;
+    const statusChanged = input.status && input.status !== oldStatus;
 
     //Mettre à jour (la validation métier est dans l'entité)
     if (input.status) {
@@ -62,6 +70,39 @@ export class UpdateTaskUseCase {
     }
 
     // Sauvegarder
-    return this.taskInteractor.save(task);
+    const savedTask = await this.taskInteractor.save(task);
+
+    // Envoyer une notification à l'admin créateur si c'est un intern qui modifie le statut
+    if (
+      this.notificationInteractor && 
+      this.notificationEmitter && 
+      statusChanged &&
+      input.userRole === UserRole.INTERN
+    ) {
+      try {
+        // Récupérer le créateur de la tâche (admin)
+        const creator = await this.userInteractor.findById(savedTask.creatorId);
+        
+        if (creator && creator.role === UserRole.ADMIN) {
+          const notification = NotificationDomainService.createTaskStatusUpdatedNotification(
+            creator.id,
+            savedTask.id,
+            savedTask.title,
+            oldStatus,
+            input.status!,
+            `${requester.firstName} ${requester.lastName}`,
+            requester.id,
+          );
+          
+          await this.notificationInteractor.save(notification);
+          this.notificationEmitter.emit(creator.id, notification);
+        }
+      } catch (error) {
+        // Log l'erreur mais ne pas faire échouer l'opération principale
+        console.error('Failed to send notification:', error);
+      }
+    }
+
+    return savedTask;
   }
 }

@@ -42,12 +42,12 @@ export function NotificationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg max-h-[80vh] flex flex-col p-0">
-        <DialogHeader className="px-6 py-4 border-b border-gray-100 dark:border-gray-800">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2">
+      <DialogContent className="w-[95vw] max-w-md sm:max-w-lg max-h-[80vh] flex flex-col p-0">
+        <DialogHeader className="px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+          <div className="flex items-center justify-between gap-2">
+            <DialogTitle className="flex items-center gap-2 text-lg">
               <Bell className="h-5 w-5" />
-              Notifications non lues
+              Notifications
               {notifications.length > 0 && (
                 <span className="ml-2 px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 text-sm rounded-full">
                   {notifications.length}
@@ -62,7 +62,8 @@ export function NotificationModal({
                 className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400"
               >
                 <CheckCheck className="h-4 w-4 mr-1" />
-                Tout marquer comme lu
+                <span className="hidden sm:inline">Tout marquer comme lu</span>
+                <span className="sm:hidden">Tout lu</span>
               </Button>
             )}
           </div>

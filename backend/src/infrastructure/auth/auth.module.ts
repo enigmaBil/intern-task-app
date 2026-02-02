@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { KeycloakStrategy } from './keycloak/keycloak.strategy';
 import { AuthService } from './auth.service';
+import { SSEAuthGuard } from './guards/sse-auth.guard';
 import { SyncUserFromAuthUseCase } from '@/core/use-cases/user';
 import { DatabaseModule } from '../database/database.module';
 
@@ -25,6 +26,9 @@ import { DatabaseModule } from '../database/database.module';
     // Service d'authentification
     AuthService,
     
+    // Guard SSE pour les notifications temps réel
+    SSEAuthGuard,
+    
     // Use Case de synchronisation
     {
       provide: SyncUserFromAuthUseCase,
@@ -34,6 +38,6 @@ import { DatabaseModule } from '../database/database.module';
       inject: ['IUserInteractor'],
     },
   ],
-  exports: [AuthService, PassportModule],
+  exports: [AuthService, PassportModule, SSEAuthGuard],
 })
 export class AuthModule {}

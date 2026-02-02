@@ -8,3 +8,5 @@
 export * from "./user.interactor";
 export * from "./task.interactor";
 export * from "./scrum-note.interactor";
+export * from "./notification.interactor";
+export * from "./notification-emitter.interactor";

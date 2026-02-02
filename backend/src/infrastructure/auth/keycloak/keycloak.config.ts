@@ -1,6 +1,6 @@
 export const keycloakConfig = () => {
     // KC_URL est utilisé pour les appels internes (JWKS) - depuis Docker c'est http://keycloak:8080
-    const kcUrl = process.env.KC_URL || process.env.KC_URL_PUBLIC || 'http://localhost:8080';
+    const kcUrl = process.env.KC_URL || process.env.KC_URL_INTERNAL || process.env.KC_URL_PUBLIC || 'http://localhost:8080';
     
     const realm = process.env.KC_REALM || process.env.APP_REALM_NAME || 'Mini-Jira-Realm';
     

@@ -20,9 +20,10 @@ model User {
   isActive  Boolean  @default(true) @map("is_active")
 
   // Relations
-  assignedTasks Task[]      @relation("AssignedTo")
-  createdTasks  Task[]      @relation("CreatedBy")
+  assignedTasks Task[]         @relation("AssignedTo")
+  createdTasks  Task[]         @relation("CreatedBy")
   scrumNotes    ScrumNote[]
+  notifications Notification[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -105,4 +106,36 @@ model ScrumNote {
   @@index([userId])
   @@index([date])
   @@index([taskId])
+}
+
+
+// ============================================
+// Notification Type Enum
+// ============================================
+enum NotificationType {
+  TASK_ASSIGNED
+  TASK_STATUS_UPDATED
+  SCRUM_NOTE_CREATED
+}
+
+// ============================================
+// Notification Model
+// ============================================
+model Notification {
+  id          String           @id @default(uuid())
+  type        NotificationType
+  title       String
+  message     String           @db.Text
+  isRead      Boolean          @default(false) @map("is_read")
+  metadata    Json?
+
+  // Relations
+  recipientId String @map("recipient_id")
+  recipient   User   @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("notifications")
+  @@index([recipientId, isRead])
+  @@index([createdAt])
 }

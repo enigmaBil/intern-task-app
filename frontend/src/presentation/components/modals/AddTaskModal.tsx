@@ -22,14 +22,26 @@ import { createTaskSchema, type CreateTaskFormData } from '@/shared/validation';
 
 interface AddTaskModalProps {
   onTaskAdded?: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 /**
  * Modal réutilisable pour ajouter une tâche
+ * Peut être contrôlée de l'extérieur via open/onOpenChange
  */
-export function AddTaskModal({ onTaskAdded }: AddTaskModalProps) {
-  const [open, setOpen] = useState(false);
+export function AddTaskModal({ 
+  onTaskAdded, 
+  open: controlledOpen, 
+  onOpenChange: controlledOnOpenChange 
+}: AddTaskModalProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Utiliser l'état contrôlé s'il est fourni, sinon l'état interne
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled ? controlledOnOpenChange! : setInternalOpen;
   
   const {
     register,
@@ -87,12 +99,15 @@ export function AddTaskModal({ onTaskAdded }: AddTaskModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nouvelle tâche
-        </Button>
-      </DialogTrigger>
+      {/* N'afficher le trigger que si non contrôlé */}
+      {!isControlled && (
+        <DialogTrigger asChild>
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Nouvelle tâche
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
           <DialogTitle>Créer une nouvelle tâche</DialogTitle>

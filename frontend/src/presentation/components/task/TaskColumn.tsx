@@ -5,115 +5,101 @@ import { Task } from '@/core/domain/entities';
 import { TaskStatus, TaskStatusLabels } from '@/core/domain/enums';
 import { SortableTaskCard } from './SortableTaskCard';
 import { cn } from '@/shared/utils';
-import { Plus, ListTodo, Clock, CheckCircle2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 interface TaskColumnProps {
   status: TaskStatus;
   tasks: Task[];
   isOver?: boolean;
   onTaskUpdated?: () => void;
+  onAddTask?: (status: TaskStatus) => void;
 }
 
-// Couleurs et icônes par statut (style Notion)
-const COLUMN_CONFIG: Record<TaskStatus, { 
-  icon: typeof ListTodo;
-  bgColor: string;
-  headerBg: string;
-  borderColor: string;
+// Configuration des couleurs par statut (style Notion - couleurs douces)
+const STATUS_CONFIG: Record<TaskStatus, {
+  badgeBg: string;
+  badgeText: string;
   dotColor: string;
+  columnBg: string;
+  cardBg: string;
+  accentColor: string;
 }> = {
   [TaskStatus.TODO]: {
-    icon: ListTodo,
-    bgColor: 'bg-gray-50/50',
-    headerBg: 'bg-gray-100',
-    borderColor: 'border-gray-200',
+    badgeBg: 'bg-gray-200',
+    badgeText: 'text-gray-700',
     dotColor: 'bg-gray-400',
+    columnBg: 'bg-gray-50',
+    cardBg: 'bg-gray-100',
+    accentColor: 'text-gray-500 border-gray-300 hover:bg-gray-100',
   },
   [TaskStatus.IN_PROGRESS]: {
-    icon: Clock,
-    bgColor: 'bg-blue-50/30',
-    headerBg: 'bg-blue-100',
-    borderColor: 'border-blue-200',
-    dotColor: 'bg-blue-500',
+    badgeBg: 'bg-blue-100',
+    badgeText: 'text-blue-700',
+    dotColor: 'bg-blue-400',
+    columnBg: 'bg-blue-50/50',
+    cardBg: 'bg-blue-100',
+    accentColor: 'text-blue-500 border-blue-300 hover:bg-blue-50',
   },
   [TaskStatus.DONE]: {
-    icon: CheckCircle2,
-    bgColor: 'bg-green-50/30',
-    headerBg: 'bg-green-100',
-    borderColor: 'border-green-200',
-    dotColor: 'bg-green-500',
+    badgeBg: 'bg-green-100',
+    badgeText: 'text-green-700',
+    dotColor: 'bg-green-400',
+    columnBg: 'bg-green-50/50',
+    cardBg: 'bg-green-100',
+    accentColor: 'text-green-500 border-green-300 hover:bg-green-50',
   },
 };
 
-export function TaskColumn({ status, tasks, isOver, onTaskUpdated }: TaskColumnProps) {
+// Export pour utilisation dans les cartes
+export { STATUS_CONFIG };
+
+export function TaskColumn({ status, tasks, isOver, onTaskUpdated, onAddTask }: TaskColumnProps) {
   const { setNodeRef, active } = useDroppable({
     id: status,
   });
 
-  const config = COLUMN_CONFIG[status];
-  const Icon = config.icon;
+  const config = STATUS_CONFIG[status];
   const isDraggingOver = isOver && active;
 
   return (
     <div
       ref={setNodeRef}
       className={cn(
-        'flex flex-col rounded-xl border transition-all duration-300',
-        'min-h-[500px]',
-        config.bgColor,
-        config.borderColor,
+        'flex flex-col rounded-xl transition-all duration-300',
+        'min-h-[300px] md:min-h-[500px] p-2',
+        config.columnBg,
         isDraggingOver && [
-          'border-primary border-2',
+          'ring-2 ring-primary ring-offset-2',
           'bg-primary/5',
-          'shadow-lg shadow-primary/10',
-          'scale-[1.02]',
         ]
       )}
     >
-      {/* Header de colonne style Notion */}
-      <div
-        className={cn(
-          'sticky top-0 z-10',
-          'flex items-center justify-between',
-          'px-4 py-3',
-          'rounded-t-xl',
-          'backdrop-blur-sm bg-white/80',
-          'border-b',
-          config.borderColor
-        )}
-      >
+      {/* Header avec badge coloré style Notion */}
+      <div className="px-3 py-3">
         <div className="flex items-center gap-2">
-          <span className={cn('w-2.5 h-2.5 rounded-full', config.dotColor)} />
-          <h2 className="font-semibold text-gray-800">{TaskStatusLabels[status]}</h2>
+          {/* Badge de statut coloré */}
           <span
             className={cn(
-              'ml-1 rounded-full px-2 py-0.5 text-xs font-medium',
-              'bg-gray-200/80 text-gray-600'
+              'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium',
+              config.badgeBg,
+              config.badgeText
             )}
           >
+            <span className={cn('w-2 h-2 rounded-full', config.dotColor, 'bg-current opacity-80')} />
+            {TaskStatusLabels[status]}
+          </span>
+          
+          {/* Compteur */}
+          <span className="text-sm text-muted-foreground">
             {tasks.length}
           </span>
         </div>
-        
-        {/* Bouton d'ajout (optionnel) */}
-        <button
-          className={cn(
-            'p-1.5 rounded-md',
-            'text-gray-400 hover:text-gray-600',
-            'hover:bg-gray-100',
-            'transition-colors duration-150',
-            'opacity-0 group-hover:opacity-100'
-          )}
-          aria-label="Ajouter une tâche"
-        >
-          <Plus className="h-4 w-4" />
-        </button>
       </div>
 
       {/* Zone de contenu avec scroll */}
       <div
         className={cn(
-          'flex-1 p-3 space-y-3',
+          'flex-1 px-2 pb-2 space-y-2',
           'overflow-y-auto',
           'scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent'
         )}
@@ -123,52 +109,56 @@ export function TaskColumn({ status, tasks, isOver, onTaskUpdated }: TaskColumnP
             key={task.id}
             task={task}
             onTaskUpdated={onTaskUpdated}
+            cardBgColor={config.cardBg}
           />
         ))}
 
         {/* Placeholder quand la colonne est vide */}
-        {tasks.length === 0 && (
+        {tasks.length === 0 && !isDraggingOver && (
           <div
             className={cn(
-              'flex flex-col items-center justify-center',
-              'h-40 rounded-lg',
-              'border-2 border-dashed',
-              isDraggingOver ? 'border-primary bg-primary/5' : 'border-gray-200',
-              'transition-all duration-200'
+              'flex items-center justify-center',
+              'h-24 rounded-lg',
+              'border border-dashed border-gray-300',
+              'text-sm text-muted-foreground'
             )}
           >
-            <Icon
-              className={cn(
-                'h-8 w-8 mb-2',
-                isDraggingOver ? 'text-primary' : 'text-gray-300'
-              )}
-            />
-            <p
-              className={cn(
-                'text-sm',
-                isDraggingOver ? 'text-primary font-medium' : 'text-gray-400'
-              )}
-            >
-              {isDraggingOver ? 'Déposer ici' : 'Aucune tâche'}
-            </p>
+            Aucune tâche
           </div>
         )}
 
-        {/* Indicateur de drop quand on survole avec une tâche */}
-        {isDraggingOver && tasks.length > 0 && (
+        {/* Indicateur de drop */}
+        {isDraggingOver && (
           <div
             className={cn(
-              'h-20 rounded-lg',
+              'h-16 rounded-lg',
               'border-2 border-dashed border-primary',
-              'bg-primary/5',
+              'bg-primary/10',
               'flex items-center justify-center',
               'animate-pulse'
             )}
           >
-            <p className="text-sm text-primary font-medium">Déposer ici</p>
+            <span className="text-sm text-primary font-medium">Déposer ici</span>
           </div>
         )}
       </div>
+
+      {/* Bouton Nouvelle tâche en bas (style Notion) */}
+      {onAddTask && (
+        <button
+          onClick={() => onAddTask(status)}
+          className={cn(
+            'flex items-center gap-2 px-3 py-2 mx-2 mb-2',
+            'text-sm font-medium',
+            'rounded-md border',
+            'transition-colors duration-150',
+            config.accentColor
+          )}
+        >
+          <Plus className="h-4 w-4" />
+          Nouvelle tâche
+        </button>
+      )}
     </div>
   );
 }

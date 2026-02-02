@@ -71,6 +71,10 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return this.client.scrumNote;
   }
 
+  get notification() {
+    return this.client.notification;
+  }
+
   /**
    * Connect to database when module initializes
    */
